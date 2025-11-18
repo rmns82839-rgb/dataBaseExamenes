@@ -325,13 +325,13 @@
     </div>
 
     <script>
-        // 1. CONFIGURACIÓN DEL ENDPOINT (¡REEMPLAZA ESTA URL!)
-        const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; // Reemplaza con tu URL real
+        // 1. CONFIGURACIÓN DEL ENDPOINT (¡VERIFICA ESTA URL!)
+        // Debe ser la URL de tu servicio de Render
+        const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; 
         
         let classificationDataCache = {};
         let examsArrayGlobal = []; 
 
-        // Mapeo de opciones de tubos (con la descripción completa)
         const tubeOptions = {
             'No Clasificado': 'No Clasificado',
             'Tubo Amarillo (Gel/Suero)': 'yellow',
@@ -350,8 +350,8 @@
 
         // 2. LÓGICA DE CONEXIÓN CON EL SERVIDOR RENDER/MONGODB
         
+        // Carga las clasificaciones guardadas en MongoDB
         async function getClassificationDataOnline() {
-            // ... (Función inalterada) ...
             try {
                 const response = await fetch(API_BASE_URL);
                 if (!response.ok) {
@@ -367,10 +367,9 @@
             }
         }
         
+        // Guarda la clasificación en MongoDB
         async function saveClassificationOnline(examKey, tubeValue, instructionsValue) {
-            // ... (Función inalterada) ...
             try {
-                // Deshabilitar botón para evitar doble click
                 const button = document.getElementById(`save-btn-${examKey}`);
                 if (button) button.disabled = true;
 
@@ -390,10 +389,8 @@
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                // Actualizar caché
+                // Actualizar caché y re-renderizar para que el examen se mueva de contenedor
                 classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
-                
-                // Volver a renderizar los grupos para que el examen se mueva a su nuevo contenedor
                 renderGroupedExams(examsArrayGlobal, classificationDataCache);
 
                 document.getElementById('saveStatus').textContent = `✅ Examen "${examKey}" guardado y movido a su contenedor a las ${new Date().toLocaleTimeString()}.`;
@@ -426,7 +423,6 @@
                  return;
             }
             
-            // 1. Agrupar exámenes por el tipo de tubo
             const groupedExams = {};
             Object.keys(tubeOptions).forEach(tubeName => groupedExams[tubeName] = []);
             
@@ -434,7 +430,6 @@
                 const classification = classificationData[exam] || { tube: 'No Clasificado', instructions: '' };
                 const tubeKey = classification.tube || 'No Clasificado';
                 
-                // Buscar el nombre completo del tubo usando el valor (clase CSS)
                 const tubeNameKey = Object.keys(tubeOptions).find(key => tubeOptions[key] === tubeOptions[tubeKey]);
 
                 if (tubeNameKey && groupedExams[tubeNameKey]) {
@@ -446,9 +441,8 @@
                 }
             });
             
-            // 2. Renderizar los grupos (acordeones)
             const sortedTubeKeys = Object.keys(groupedExams).sort((a, b) => {
-                if (a === 'No Clasificado') return -1; // No Clasificado primero
+                if (a === 'No Clasificado') return -1; 
                 if (b === 'No Clasificado') return 1;
                 return a.localeCompare(b);
             });
@@ -478,22 +472,18 @@
                         itemDiv.className = 'csv-exam-item';
                         itemDiv.dataset.exam = examData.examKey;
 
-                        // A) Indicador de color
                         const indicator = document.createElement('span');
                         indicator.className = 'tube-indicator ' + tubeOptions[examData.tube];
                         itemDiv.appendChild(indicator);
                         
-                        // B) Nombre del examen
                         const nameSpan = document.createElement('span');
                         nameSpan.className = 'exam-name-display';
                         nameSpan.textContent = examData.examKey;
                         itemDiv.appendChild(nameSpan);
 
-                        // C) Formulario de clasificación
                         const formDiv = document.createElement('div');
                         formDiv.className = 'classification-form';
 
-                        // Select de Tubo
                         const select = document.createElement('select');
                         select.id = `select-${examData.examKey}`;
                         
@@ -508,7 +498,6 @@
                         });
                         formDiv.appendChild(select);
 
-                        // Input de Instrucciones
                         const input = document.createElement('input');
                         input.type = 'text';
                         input.id = `input-${examData.examKey}`;
@@ -516,7 +505,6 @@
                         input.value = examData.instructions;
                         formDiv.appendChild(input);
                         
-                        // Botón de Guardar
                         const saveBtn = document.createElement('button');
                         saveBtn.id = `save-btn-${examData.examKey}`;
                         saveBtn.className = 'save-button';
@@ -536,8 +524,11 @@
              document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes cargados. Clasificación leída de MongoDB y agrupada.`;
         }
 
+        // Carga la lista de exámenes de la ruta desde localStorage y las clasificaciones de MongoDB
         async function loadAndRenderCSVExams() {
             const container = document.getElementById('csvExamsList');
+            
+            // *** PUNTO CLAVE: CARGAR CSV DE LOCALSTORAGE ***
             const storedExams = localStorage.getItem('csv_unique_exams');
             
             const classificationData = await getClassificationDataOnline();
@@ -545,16 +536,17 @@
             container.innerHTML = '';
             
             if (!storedExams) {
-                container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ No hay exámenes cargados desde la última ruta CSV. Carga un archivo en la página principal (index.html).</p>`;
+                container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ No hay exámenes de ruta guardados. Carga un archivo en la página principal.</p>`;
                 return;
             }
 
+            // Si hay storedExams, se cargan y se usan.
             examsArrayGlobal = JSON.parse(storedExams);
             
             renderGroupedExams(examsArrayGlobal, classificationData);
         }
 
-        // 4. FUNCIONES EXISTENTES Y MEJORADAS
+        // 4. FUNCIONES ADICIONALES
         function toggleAccordion(header) {
             const group = header.closest('.tube-group');
             group.classList.toggle('active');
@@ -575,8 +567,6 @@
                 return;
             }
             
-            // Lógica de filtrado
-            
             // 1. Filtrar Acordeones de la GUÍA ESTÁTICA
             guideContainer.querySelectorAll('.tube-group').forEach(group => {
                 let foundInGroup = false;
@@ -592,10 +582,9 @@
                     }
                 });
                 
-                // Mostrar/ocultar el grupo y forzar expansión si hay resultados
                 if (foundInGroup || group.querySelector('.tube-header').textContent.toLowerCase().includes(searchTerm)) {
                     group.style.display = 'block';
-                    group.classList.add('active'); // Forzar apertura
+                    group.classList.add('active'); 
                 } else {
                     group.style.display = 'none';
                 }
@@ -607,7 +596,6 @@
                 const items = [...group.querySelectorAll('.csv-exam-item')];
 
                 items.forEach(item => {
-                    // Busca en el nombre, el código (si existe) y las instrucciones
                     const name = item.querySelector('.exam-name-display').textContent.toLowerCase();
                     const instructions = item.querySelector('input[type="text"]').value.toLowerCase();
                     
@@ -619,10 +607,9 @@
                     }
                 });
                 
-                // Mostrar/ocultar el grupo y forzar expansión si hay resultados
                 if (foundInGroup || group.querySelector('.tube-header').textContent.toLowerCase().includes(searchTerm)) {
                     group.style.display = 'block';
-                    group.classList.add('active'); // Forzar apertura
+                    group.classList.add('active'); 
                 } else {
                     group.style.display = 'none';
                 }
@@ -632,7 +619,7 @@
 
         // 5. INICIALIZACIÓN
         document.addEventListener('DOMContentLoaded', () => {
-             // Cargar los exámenes del CSV y renderizarlos agrupados
+             // Cargar los exámenes del CSV (de localStorage) y las clasificaciones (de MongoDB)
             loadAndRenderCSVExams(); 
             
             // Colapsar guías estáticas al inicio
