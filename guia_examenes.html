@@ -84,7 +84,7 @@
         /* --- ESTILOS DE ITEM DE EXAMEN (CSV) --- */
         .csv-exam-item {
             display: flex;
-            flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+            flex-wrap: wrap; 
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #eee;
@@ -99,7 +99,7 @@
         }
         .exam-name-display {
             font-weight: bold;
-            flex-basis: 30%; /* Ocupa 30% del espacio */
+            flex-basis: 30%; 
             min-width: 150px;
             margin-right: 10px;
         }
@@ -112,7 +112,7 @@
             flex-shrink: 0;
         }
         .classification-form {
-            flex-basis: 60%; /* Ocupa 60% del espacio */
+            flex-basis: 60%; 
             display: flex;
             align-items: center;
             gap: 5px;
@@ -153,16 +153,16 @@
 
         /* --- ESTILOS DE COLOR DE TUBOS --- */
         .tube-indicator.yellow { background-color: #FFC107; }
-        .tube-indicator.lila { background-color: #8e2de2; } /* Lila */
-        .tube-indicator.celeste { background-color: #00b0ff; } /* Azul Celeste (Citarto) */
-        .tube-indicator.red { background-color: #dc3545; } /* Rojo (Sin aditivo) */
-        .tube-indicator.green { background-color: #28a745; } /* Verde (Heparina) */
-        .tube-indicator.gray { background-color: #6c757d; } /* Gris (Fluoruro/Oxalato) */
-        .tube-indicator.azul-rey { background-color: #4169e1; } /* Azul Rey (Trace Elements) */
-        .tube-indicator.perlado { background-color: #c790b5; } /* Tubo Perlado (PPT) */
-        .tube-indicator.fecal { background-color: #8B4513; } /* Heces */
-        .tube-indicator.urine { background-color: #ffdead; border: 1px solid #8B4513;} /* Orina */
-        .tube-indicator.saliva { background-color: #f0f8ff; border: 1px solid #333; } /* Saliva */
+        .tube-indicator.lila { background-color: #8e2de2; } 
+        .tube-indicator.celeste { background-color: #00b0ff; } 
+        .tube-indicator.red { background-color: #dc3545; } 
+        .tube-indicator.green { background-color: #28a745; } 
+        .tube-indicator.gray { background-color: #6c757d; } 
+        .tube-indicator.azul-rey { background-color: #4169e1; } 
+        .tube-indicator.perlado { background-color: #c790b5; } 
+        .tube-indicator.fecal { background-color: #8B4513; } 
+        .tube-indicator.urine { background-color: #ffdead; border: 1px solid #8B4513;} 
+        .tube-indicator.saliva { background-color: #f0f8ff; border: 1px solid #333; } 
         .tube-indicator.other { background-color: #333; }
         .tube-indicator.No.Clasificado { background-color: #fff; border: 1px dashed #dc3545; }
 
@@ -170,10 +170,38 @@
         .guide-exam-item {
              padding: 8px;
              border-bottom: 1px dotted #ccc;
+             font-weight: 500;
+             font-size: 0.95em;
         }
         .guide-exam-item:last-child {
              border-bottom: none;
         }
+        .guide-note {
+             font-style: italic;
+             font-size: 0.85em;
+             color: #666;
+             margin-left: 10px;
+        }
+        
+        /* Botón de Regreso */
+        .back-button {
+            background-color: #333;
+            color: #FFC107;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+        }
+        .back-button:hover {
+            background-color: #555;
+        }
+
 
         /* Responsive */
         @media (max-width: 600px) {
@@ -205,6 +233,11 @@
 </head>
 <body>
     <div id="container">
+        
+        <button class="back-button" onclick="window.location.href='index.html'">
+            ⬅️ Regresar a la Carga de Exámenes (Página Principal)
+        </button>
+        
         <h1>Guía Rápida de Clasificación de Muestras</h1>
 
         <input type="text" id="searchInput" placeholder="Buscar por Código o Nombre del Examen..." onkeyup="filterExams()" style="width: 100%; padding: 12px; margin-bottom: 25px; border: 2px solid #333; border-radius: 5px; font-size: 1.1em;">
@@ -221,30 +254,72 @@
         <hr style="margin: 30px 0;">
 
         <div id="examensList">
-            <h2>GUÍA RÁPIDA DE REFERENCIA DE TUBOS</h2>
+            <h2>GUÍA RÁPIDA DE REFERENCIA DE TUBOS 💡</h2>
+            
             <div class="tube-group" id="yellow-group">
-                <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Amarillo (Suero/Gel)</h2>
+                <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Amarillo (Gel/Suero)</h2>
                 <div class="tube-content">
-                    <div class="guide-exam-item">GLUCOSA (No en ayunas)</div>
-                    <div class="guide-exam-item">PERFIL LIPÍDICO</div>
-                    <div class="guide-exam-item">CREATININA</div>
+                    <div class="guide-exam-item">GLUCOSA <span class="guide-note">(Requiere ayuno o según orden)</span></div>
+                    <div class="guide-exam-item">PERFIL LIPÍDICO / COLESTEROL / TRIGLICÉRIDOS</div>
+                    <div class="guide-exam-item">PERFIL HEPÁTICO</div>
+                    <div class="guide-exam-item">CREATININA / BUN / ÁCIDO ÚRICO</div>
+                    <div class="guide-exam-item">HORMONA ESTIMULANTE DEL TIROIDES (TSH) / T4 Libre</div>
                 </div>
             </div>
+            
             <div class="tube-group" id="lila-group">
-                <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Lila (EDTA - Hematología)</h2>
+                <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Lila (EDTA)</h2>
                 <div class="tube-content">
-                    <div class="guide-exam-item">HEMOGRAMA</div>
+                    <div class="guide-exam-item">HEMOGRAMA / HEMOGRAMA IV</div>
                     <div class="guide-exam-item">HEMOGLOBINA GLICOSILADA</div>
-                    <div class="guide-exam-item">VSG</div>
+                    <div class="guide-exam-item">VSG (Velocidad de Sedimentación Globular)</div>
+                    <div class="guide-exam-item">TIPIFICACIÓN SANGUÍNEA</div>
                 </div>
             </div>
-             <div class="tube-group" id="celeste-guide-group">
-                <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Celeste (Citarto - Coagulación)</h2>
+            
+            <div class="tube-group" id="celeste-guide-group">
+                <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Celeste (Citarto)</h2>
                 <div class="tube-content">
                     <div class="guide-exam-item">TP (Tiempo de Protrombina)</div>
                     <div class="guide-exam-item">TPT (Tiempo de Tromboplastina Parcial)</div>
+                    <div class="guide-exam-item">FIBRINÓGENO</div>
                 </div>
             </div>
+
+             <div class="tube-group" id="azul-rey-group">
+                <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Azul Rey (Elementos Traza)</h2>
+                <div class="tube-content">
+                    <div class="guide-exam-item">COBRE / ZINC</div>
+                    <div class="guide-exam-item">CUALQUIER EXAMEN DE METALES PESADOS</div>
+                </div>
+            </div>
+            
+             <div class="tube-group" id="urine-group">
+                <h2 class="tube-header" onclick="toggleAccordion(this)">Orina</h2>
+                <div class="tube-content">
+                    <div class="guide-exam-item">UROANÁLISIS <span class="guide-note">(Orina simple)</span></div>
+                    <div class="guide-exam-item">CULTIVO DE ORINA</div>
+                    <div class="guide-exam-item">MICROALBUMINURIA</div>
+                </div>
+            </div>
+
+             <div class="tube-group" id="fecal-group">
+                <h2 class="tube-header" onclick="toggleAccordion(this)">Heces (Materia Fecal)</h2>
+                <div class="tube-content">
+                    <div class="guide-exam-item">COPROLÓGICO</div>
+                    <div class="guide-exam-item">SANGRE OCULTA EN MATERIA FECAL</div>
+                </div>
+            </div>
+            
+             <div class="tube-group" id="other-group">
+                <h2 class="tube-header" onclick="toggleAccordion(this)">Otros / Especiales (Ej. Rojo, Verde, Gris, Perlado)</h2>
+                <div class="tube-content">
+                    <div class="guide-exam-item">GLUCOSA POST-CARGA <span class="guide-note">(Requiere tomas seriadas en Gris)</span></div>
+                    <div class="guide-exam-item">BNP PEPTIDO NATRIURÉTICO</div>
+                    <div class="guide-exam-item">ANTÍGENO ESPECÍFICO DE PRÓSTATA (PSA)</div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -254,7 +329,7 @@
         const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; // Reemplaza con tu URL real
         
         let classificationDataCache = {};
-        let examsArrayGlobal = []; // Para almacenar la lista de exámenes del CSV
+        let examsArrayGlobal = []; 
 
         // Mapeo de opciones de tubos (con la descripción completa)
         const tubeOptions = {
@@ -331,7 +406,6 @@
             }
         }
         
-        // La función saveClassificationTrigger ahora solo llama a saveClassificationOnline
         function saveClassificationTrigger(examKey) {
             const select = document.getElementById(`select-${examKey}`);
             const input = document.getElementById(`input-${examKey}`);
@@ -360,7 +434,7 @@
                 const classification = classificationData[exam] || { tube: 'No Clasificado', instructions: '' };
                 const tubeKey = classification.tube || 'No Clasificado';
                 
-                // Asignar al grupo correcto (usando el nombre completo del tubo como clave)
+                // Buscar el nombre completo del tubo usando el valor (clase CSS)
                 const tubeNameKey = Object.keys(tubeOptions).find(key => tubeOptions[key] === tubeOptions[tubeKey]);
 
                 if (tubeNameKey && groupedExams[tubeNameKey]) {
@@ -383,7 +457,7 @@
                 const examsInGroup = groupedExams[tubeName];
                 
                 if (examsInGroup.length > 0) {
-                    const tubeClass = tubeOptions[tubeName]; // Clase CSS del tubo
+                    const tubeClass = tubeOptions[tubeName]; 
                     const safeTubeId = tubeClass.replace(/[^a-zA-Z0-9]/g, '-');
                     
                     const groupDiv = document.createElement('div');
