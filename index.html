@@ -20,369 +20,400 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más fuerte */
             box-sizing: border-box;
-            border-top: 5px solid #FFC107; 
+            border-top: 5px solid #FFC107; /* Línea amarilla de impacto */
         }
         h1, h2 {
             color: #333;
             text-align: center;
-        }
-        h1 {
             font-size: 1.8em;
-            margin-bottom: 5px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #FFC107;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
-        h2 {
-            font-size: 1.2em;
-            margin-top: 0;
-            margin-bottom: 25px;
+        p {
+            text-align: center;
             color: #555;
         }
-        
-        /* Botón de Portal */
-        .portal-button {
-            background-color: #333;
-            color: #FFC107;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            display: block;
-            width: 100%;
-            margin-bottom: 20px;
-            transition: background-color 0.2s;
-            text-decoration: none;
-            text-align: center;
-        }
-        .portal-button:hover {
-            background-color: #555;
-        }
-        /* Fin Botón Portal */
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
         input[type="file"] {
+            display: block;
+            margin: 15px auto 25px;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: 2px solid #333; /* Borde oscuro */
+            border-radius: 4px;
             width: 100%;
-            max-width: 400px;
+            box-sizing: border-box;
+            background-color: #eee;
         }
-        button {
-            background-color: #FFC107;
-            color: #333;
+        .action-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .action-buttons button {
+            background-color: #333; /* Fondo oscuro */
+            color: #FFC107; /* Texto amarillo */
+            padding: 12px 25px; 
             border: none;
-            padding: 12px 25px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
-            transition: background-color 0.2s;
+            width: 100%; 
+            box-sizing: border-box;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease, transform 0.1s;
         }
-        button:hover {
-            background-color: #e0a800;
+        .action-buttons button:hover {
+            background-color: #555;
+            transform: translateY(-2px);
+        }
+        .action-buttons button:active {
+            transform: translateY(0);
         }
         #status {
+            font-size: 1.1em;
+            color: #1a4f78;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #e9f7ff;
             text-align: center;
-            margin-top: 15px;
-            color: #007bff;
-            font-weight: bold;
         }
+        /* Estilos de Contenedores de Datos */
         #outputList {
             list-style: none;
             padding: 0;
-            margin-top: 20px;
+            margin-top: 25px;
         }
-        .company-item {
-            border: 2px solid #333;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        .company-group {
+            margin-bottom: 25px;
             padding: 15px;
-            background-color: #fff;
+            border-radius: 8px;
+            border: 2px solid;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-        .company-name {
-            font-size: 1.4em;
+        /* Colores de Compañía (Conservamos diferenciación) */
+        .company-group.fsfb-blue { border-color: #007bff; background-color: #e6f7ff; }
+        .company-group.other-red { border-color: #dc3545; background-color: #ffeaea; }
+        
+        .company-header {
             font-weight: bold;
+            font-size: 1.3em; 
             color: #333;
             margin-bottom: 10px;
-            border-bottom: 2px solid #FFC107;
             padding-bottom: 5px;
-        }
-        .patient-list {
-            list-style: none;
-            padding-left: 0;
-            margin-top: 10px;
+            border-bottom: 1px dashed #ccc;
         }
         .patient-item {
-            background-color: #f0f0f0;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border-left: 5px solid #007bff;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 12px;
+            border-radius: 4px;
         }
-        .patient-name {
-            font-weight: bold;
-            color: #007bff;
+        .patient-header {
+            font-weight: 700;
+            color: #333;
+            font-size: 1em;
             margin-bottom: 5px;
         }
-        .request-list {
-            list-style: none;
-            padding-left: 15px;
-            margin-top: 5px;
-            border-left: 2px dashed #ccc;
-        }
-        .request-item {
-            margin-bottom: 8px;
-        }
-        .request-header {
+        .request-info {
             font-weight: 600;
-            color: #333;
-            font-size: 0.95em;
+            color: #666;
+            display: block;
+            margin-top: 5px;
+            font-size: 0.9em;
         }
         .exam-list {
             list-style: disc;
+            margin: 5px 0 0 25px;
+            padding: 0;
             font-size: 0.9em;
-            color: #666;
-            padding-left: 20px;
+            color: #000;
         }
         .no-exams {
+            color: #888;
             font-style: italic;
-            color: #999;
-            margin-left: 15px;
+            margin-left: 25px;
             font-size: 0.9em;
         }
-        @media (max-width: 600px) {
-            .input-group {
-                padding: 15px;
+
+        /* MEDIA QUERY para Desktop */
+        @media (min-width: 600px) {
+            h1 {
+                font-size: 2.5em;
             }
-            input[type="file"] {
-                max-width: 100%;
-            }
-            .company-name {
-                font-size: 1.2em;
+            .action-buttons button {
+                width: auto;
+                min-width: 350px;
+                font-size: 1.1em;
             }
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        
-        <a href="https://rmns82839-rgb.github.io/portal-de-toma-de-muestras/" class="portal-button" target="_blank">
-            Volver al Portal Principal
-        </a>
-        
-        <h1>Motorizado Lab 🧪</h1>
-        <h2>Procesamiento de Archivo CSV de Ruta</h2>
 
-        <div class="input-group">
-            <input type="file" id="csvFile" accept=".csv" required>
-            <button onclick="processCSV()">Cargar y Procesar Ruta</button>
-            <button onclick="window.location.href='guia_examenes.html'">Ver Guía de Toma de Muestras</button>
+    <div id="container">
+        <h1>Motorizados Lab 🧪</h1>
+        <p>Sistema de Gestión de Rutas y Carga CSV</p>
+
+        <input type="file" id="csvFile" accept=".csv" required>
+
+        <div class="action-buttons">
+            <button onclick="window.location.href='guia_examenes.html'">VER GUÍA DE TOMA DE MUESTRAS</button>
         </div>
 
-        <p id="status">Esperando archivo CSV...</p>
+        <h2 id="status"></h2>
 
         <ul id="outputList">
             </ul>
     </div>
 
     <script>
-        let processedData = [];
-
-        function processCSV() {
-            const fileInput = document.getElementById('csvFile');
-            const file = fileInput.files[0];
-            const statusElement = document.getElementById('status');
-            
-            if (!file) {
-                statusElement.textContent = 'Por favor, selecciona un archivo CSV.';
-                return;
-            }
-
-            statusElement.textContent = 'Procesando archivo...';
-            
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                delimiter: ',',
-                complete: function(results) {
-                    const data = results.data;
-                    const totalRowsProcessed = data.length;
-                    
-                    if (data.length === 0) {
-                        statusElement.textContent = 'El archivo está vacío o no se pudieron leer los datos.';
-                        return;
-                    }
-                    
-                    const COL_COMPANY = 'Tipo cliente';
-                    const COL_PATIENT_NAME = 'Nombre Paciente';
-                    const COL_REQUEST_ID = 'N° Solicitud';
-                    const COL_EXAMS = 'Examenes solicitados';
-                    const COL_DOC = 'N° Documento';
-
-                    const groupedData = {};
-                    const uniqueExams = new Set();
-                    
-                    data.forEach(row => {
-                        const company = row[COL_COMPANY] ? row[COL_COMPANY].trim() : 'SIN COMPAÑÍA';
-                        const patientKey = `${row[COL_PATIENT_NAME]}-${row[COL_DOC]}`.trim();
-                        const requestId = row[COL_REQUEST_ID] ? row[COL_REQUEST_ID].trim() : 'SIN SOLICITUD';
-                        
-                        const examsStr = row[COL_EXAMS] || '';
-                        const exams = examsStr.split(/[\/\/|;]/) 
-                            .map(exam => exam.replace(/\[.*\]|\s*\d+\s*/g, '').trim())
-                            .filter(exam => exam.length > 2);
-
-                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES
-                        exams.forEach(exam => uniqueExams.add(exam));
-                        
-                        if (!groupedData[company]) {
-                            groupedData[company] = {};
-                        }
-                        
-                        if (!groupedData[company][patientKey]) {
-                            groupedData[company][patientKey] = {
-                                name: row[COL_PATIENT_NAME] ? row[COL_PATIENT_NAME].trim() : 'N/A',
-                                document: row[COL_DOC] ? row[COL_DOC].trim() : 'N/A',
-                                requests: {}
-                            };
-                        }
-                        
-                        if (!groupedData[company][patientKey].requests[requestId]) {
-                            groupedData[company][patientKey].requests[requestId] = {
-                                id: requestId,
-                                exams: exams
-                            };
-                        } else {
-                            exams.forEach(exam => {
-                                if (!groupedData[company][patientKey].requests[requestId].exams.includes(exam)) {
-                                    groupedData[company][patientKey].requests[requestId].exams.push(exam);
-                                }
-                            });
-                        }
-                    });
-
-                    // *** PUNTO CLAVE: GUARDAR CSV Y DATA PROCESADA EN LOCALSTORAGE ***
-                    localStorage.setItem('csv_unique_exams', JSON.stringify(Array.from(uniqueExams).sort()));
-                    localStorage.setItem('csv_processed_data', JSON.stringify(groupedData));
-                    
-                    renderOutput(groupedData, totalRowsProcessed);
-                },
-                error: function(error) {
-                    statusElement.textContent = `Error al parsear el archivo: ${error.message}`;
-                    console.error('PapaParse error:', error);
-                }
-            });
-        }
-
-        // Función para renderizar el output
-        function renderOutput(groupedData, totalRowsProcessed) {
+        const STORAGE_KEY = 'csv_data_motorizado'; 
+        
+        // ***************************************************
+        // FUNCIÓN RECEPTORA GLOBAL
+        // ***************************************************
+        window.loadDataAppInicio = function(csvData) {
             const outputList = document.getElementById('outputList');
             const statusElement = document.getElementById('status');
-            outputList.innerHTML = '';
             
-            const companyNames = Object.keys(groupedData);
-            const sortedCompanies = companyNames.sort();
-            let totalPatients = 0;
+            outputList.innerHTML = ''; 
+            statusElement.textContent = "Datos recibidos de la aplicación principal. Procesando...";
 
-            if (sortedCompanies.length === 0) {
-                 statusElement.textContent = 'Proceso finalizado, pero no se encontraron datos válidos.';
-                 return;
+            const { processedData, uniqueExamsForGuide } = processData(csvData);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(processedData));
+            localStorage.setItem('csv_unique_exams', JSON.stringify(uniqueExamsForGuide)); // Guardamos la lista de la guía
+
+            renderData(processedData, csvData.length);
+            
+            statusElement.textContent = `Datos de ${csvData.length} filas cargados y sincronizados desde otra aplicación.`;
+        };
+        // ***************************************************
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('csvFile');
+            const outputList = document.getElementById('outputList');
+            const statusElement = document.getElementById('status');
+
+            loadAndRenderData();
+
+            fileInput.addEventListener('change', handleFileSelect);
+
+            function handleFileSelect(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    statusElement.textContent = "Cargando y analizando datos...";
+                    outputList.innerHTML = ''; 
+                    
+                    Papa.parse(file, {
+                        header: true,
+                        dynamicTyping: false,
+                        skipEmptyLines: true,
+                        delimiter: ",", 
+                        newline: "",    
+                        transformHeader: function(header) {
+                            return header.trim().replace(/\s+/g, ' '); 
+                        },
+                        complete: function(results) {
+                            if (results.errors.length > 0) {
+                                console.warn("Errores de PapaParse:", results.errors);
+                            }
+                            
+                            // 1. Lógica de procesamiento local para esta aplicación (Inicio)
+                            const { processedData, uniqueExamsForGuide } = processData(results.data);
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(processedData));
+                            localStorage.setItem('csv_unique_exams', JSON.stringify(uniqueExamsForGuide)); // Guardamos la lista de la guía
+
+                            renderData(processedData, results.data.length);
+                            statusElement.textContent = "Datos cargados exitosamente. Procesando y guardando...";
+
+                            // 2. >>> IMPLEMENTACIÓN DE DISTRIBUCIÓN <<<
+                            if (typeof window.distributeParsedData === 'function') {
+                                window.distributeParsedData(results.data);
+                                console.log('Datos CSV distribuidos a otras aplicaciones.');
+                            } else {
+                                console.warn('Función global de distribución (window.distributeParsedData) no encontrada. La carga es solo local.');
+                            }
+                        },
+                        error: function(error) {
+                            statusElement.textContent = `Error al analizar el archivo: ${error.message}`;
+                            console.error('Error al analizar CSV:', error);
+                        }
+                    });
+                }
             }
 
-            sortedCompanies.forEach(companyName => {
-                const companyData = groupedData[companyName];
-                const patientKeys = Object.keys(companyData);
-                totalPatients += patientKeys.length;
+            function loadAndRenderData() {
+                const storedData = localStorage.getItem(STORAGE_KEY);
+                if (storedData) {
+                    const data = JSON.parse(storedData);
+                    renderData(data, 'anteriormente'); 
+                    const totalPatients = Object.values(data).reduce((acc, patients) => acc + Object.keys(patients).length, 0);
+                    const totalCompanies = Object.keys(data).length;
+                    statusElement.textContent = `Ruta cargada desde la última sesión. ${totalPatients} pacientes agrupados en ${totalCompanies} compañías.`;
+                } else {
+                    statusElement.textContent = "Esperando la carga de un archivo CSV de ruta...";
+                }
+            }
 
-                const companyListItem = document.createElement('li');
-                companyListItem.className = 'company-item';
-
-                const companyNameHeader = document.createElement('h3');
-                companyNameHeader.className = 'company-name';
-                companyNameHeader.textContent = `${companyName} (${patientKeys.length} Pacientes)`;
-                companyListItem.appendChild(companyNameHeader);
-
-                const patientList = document.createElement('ul');
-                patientList.className = 'patient-list';
-
-                const sortedPatientKeys = patientKeys.sort((a, b) => companyData[a].name.localeCompare(companyData[b].name));
+            function processData(data) {
+                const companyData = {};
                 
-                sortedPatientKeys.forEach(patientKey => {
-                    const patientData = companyData[patientKey];
-                    const patientListItem = document.createElement('li');
-                    patientListItem.className = 'patient-item';
+                // Mapeo de columnas (Asegúrate que estos nombres coincidan con tu CSV)
+                const companyCol = 'Tipo cliente';
+                const requestCol = 'N° Solicitud';
+                const docCol = 'N° Documento';
+                const nameCol = 'Nombre Paciente';
+                const examsCol = 'Examenes solicitados'; 
 
-                    const patientNameHeader = document.createElement('p');
-                    patientNameHeader.className = 'patient-name';
-                    patientNameHeader.textContent = `${patientData.name} (CC: ${patientData.document})`;
-                    patientListItem.appendChild(patientNameHeader);
+                // --- NUEVA LISTA GLOBAL PARA LA GUÍA ---
+                const uniqueExamsForGuide = new Set(); 
 
-                    const requestKeys = Object.keys(patientData.requests);
-                    
-                    requestKeys.forEach(requestKey => {
-                        const req = patientData.requests[requestKey];
-                        const reqItem = document.createElement('div');
-                        reqItem.className = 'request-item';
+                data.forEach(row => {
+                    const company = row[companyCol] ? String(row[companyCol]).trim() : 'COMPAÑÍA DESCONOCIDA';
+                    const requestNum = row[requestCol] ? String(row[requestCol]).trim().replace(/\n/g, ' ') : null; 
+                    const name = row[nameCol] ? String(row[nameCol]).trim() : 'Paciente Desconocido';
+                    const doc = row[docCol] ? String(row[docCol]).trim() : '';
+                    const examsString = row[examsCol];
 
-                        const reqHeader = document.createElement('p');
-                        reqHeader.className = 'request-header';
-                        reqHeader.textContent = `Solicitud N°: ${req.id}`;
-                        reqItem.appendChild(reqHeader);
+                    if (requestNum && name !== 'Paciente Desconocido' && doc) {
+                        
+                        const patientKey = `${name} | ${doc}`;
+                        
+                        if (!companyData[company]) {
+                            companyData[company] = {};
+                        }
 
-                        if (req.exams && req.exams.length > 0) {
-                            const examList = document.createElement('ul');
-                            examList.className = 'exam-list';
-                            req.exams.forEach(exam => {
-                                const examItem = document.createElement('li');
-                                examItem.textContent = exam;
-                                examList.appendChild(examItem);
-                            });
-                            reqItem.appendChild(examList);
-                        } else {
-                            const noExamsMsg = document.createElement('p');
-                            noExamsMsg.className = 'no-exams';
-                            noExamsMsg.textContent = '— No se registraron exámenes en esta solicitud.';
-                            reqItem.appendChild(noExamsMsg);
+                        if (!companyData[company][patientKey]) {
+                            companyData[company][patientKey] = {
+                                name: name,
+                                doc: doc,
+                                requests: []
+                            };
                         }
                         
-                        patientListItem.appendChild(reqItem);
-                    });
-
-                    patientList.appendChild(patientListItem);
+                        let processedExams = [];
+                        if (examsString && String(examsString).trim().length > 0) {
+                            // Separar los exámenes por "//"
+                            const exams = String(examsString).split('//').map(exam => {
+                                // ⚠️ MODIFICACIÓN CLAVE: Mantiene códigos, elimina texto entre corchetes [...]
+                                return exam.replace(/\[.*?\]/g, '').trim(); 
+                            }).filter(exam => exam.length > 2);
+                            
+                            const currentExams = new Set();
+                            exams.forEach(exam => {
+                                currentExams.add(exam);
+                                uniqueExamsForGuide.add(exam); 
+                            });
+                            processedExams = Array.from(currentExams).sort();
+                        }
+                        
+                        companyData[company][patientKey].requests.push({
+                            requestNum: requestNum,
+                            exams: processedExams
+                        });
+                    }
                 });
 
-                companyListItem.appendChild(patientList);
-                outputList.appendChild(companyListItem);
-            });
+                // Devolvemos tanto los datos procesados como la lista de exámenes para la guía
+                return { 
+                    processedData: companyData, 
+                    uniqueExamsForGuide: Array.from(uniqueExamsForGuide).sort() 
+                };
+            }
 
-            if (totalRowsProcessed !== 'anteriormente') {
-                statusElement.textContent = `Proceso finalizado. Se procesaron ${totalRowsProcessed} filas, encontrando ${totalPatients} pacientes agrupados en ${sortedCompanies.length} compañías.`;
+            function renderData(companyData, totalRowsProcessed) {
+                outputList.innerHTML = '';
+                let totalPatients = 0;
+                
+                const sortedCompanies = Object.keys(companyData).sort();
+
+                if (sortedCompanies.length === 0) {
+                    statusElement.textContent = "No se encontraron datos válidos con las columnas requeridas.";
+                    return;
+                }
+                
+                sortedCompanies.forEach(company => {
+                    const companyListItem = document.createElement('li');
+                    companyListItem.className = 'company-group';
+                    
+                    const companyNormalized = company.toUpperCase();
+                    if (companyNormalized.includes('FSFB') || companyNormalized.includes('FUNDACION SANTA FE')) {
+                        companyListItem.classList.add('fsfb-blue');
+                    } else {
+                        companyListItem.classList.add('other-red');
+                    }
+                    
+                    const companyHeader = document.createElement('div');
+                    companyHeader.className = 'company-header';
+                    companyHeader.textContent = `COMPAÑÍA: ${company}`;
+                    companyListItem.appendChild(companyHeader);
+                    
+                    const patientList = document.createElement('ul');
+                    patientList.style.listStyle = 'none';
+                    patientList.style.padding = '0';
+
+                    const patientsInCompany = companyData[company];
+                    const sortedPatientKeys = Object.keys(patientsInCompany).sort();
+                    totalPatients += sortedPatientKeys.length;
+
+                    sortedPatientKeys.forEach(patientKey => {
+                        const patientData = patientsInCompany[patientKey];
+                        
+                        const patientListItem = document.createElement('li');
+                        patientListItem.className = 'patient-item';
+                        
+                        const patientHeader = document.createElement('div');
+                        patientHeader.className = 'patient-header';
+                        patientHeader.textContent = `PACIENTE: ${patientData.name} (Doc: ${patientData.doc})`;
+                        patientListItem.appendChild(patientHeader);
+
+                        patientData.requests.forEach(req => {
+                            const reqItem = document.createElement('div');
+                            
+                            const reqInfo = document.createElement('span');
+                            reqInfo.className = 'request-info';
+                            reqInfo.textContent = `N° Solicitud: ${req.requestNum}`;
+                            reqItem.appendChild(reqInfo);
+
+                            if (req.exams.length > 0) {
+                                const examList = document.createElement('ul');
+                                examList.className = 'exam-list';
+                                
+                                req.exams.forEach(exam => {
+                                    const examItem = document.createElement('li');
+                                    examItem.textContent = exam;
+                                    examList.appendChild(examItem);
+                                });
+                                reqItem.appendChild(examList);
+                            } else {
+                                const noExamsMsg = document.createElement('p');
+                                noExamsMsg.className = 'no-exams';
+                                noExamsMsg.textContent = '— No se registraron exámenes en esta solicitud.';
+                                reqItem.appendChild(noExamsMsg);
+                            }
+                            
+                            patientListItem.appendChild(reqItem);
+                        });
+
+                        patientList.appendChild(patientListItem);
+                    });
+
+                    companyListItem.appendChild(patientList);
+                    outputList.appendChild(companyListItem);
+                });
+
+                if (totalRowsProcessed !== 'anteriormente') {
+                    statusElement.textContent = `Proceso finalizado. Se procesaron ${totalRowsProcessed} filas, encontrando ${totalPatients} pacientes agrupados en ${sortedCompanies.length} compañías.`;
+                }
             }
-        }
-        
-        // Cargar datos de localStorage si existen al iniciar la app
-        document.addEventListener('DOMContentLoaded', () => {
-            const statusElement = document.getElementById('status');
-            const storedData = localStorage.getItem('csv_processed_data');
-            
-            if (storedData) {
-                const parsedData = JSON.parse(storedData);
-                renderOutput(parsedData, 'anteriormente'); 
-                statusElement.textContent = 'Datos de la última ruta cargados. Procesa un nuevo CSV para actualizar.';
-            }
+
         });
     </script>
+
 </body>
 </html>
