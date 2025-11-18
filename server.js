@@ -10,7 +10,8 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const app = express();
-const port = process.env.PORT || 3000; 
+// ⚠️ CAMBIO CRÍTICO: Definimos el puerto usando SOLO la variable de entorno de Render
+const port = process.env.PORT; 
 
 // ⚠️ Leer la URI de la variable de entorno MONGODB_URI
 const uri = process.env.MONGODB_URI; 
@@ -42,15 +43,17 @@ async function connectToMongo() {
 }
 connectToMongo();
 
-// 1. ENDPOINT PARA LEER TODAS LAS CLASIFICACIONES
+// ----------------------------------------------------------------------
+// 1. ENDPOINT PARA LEER TODAS LAS CLASIFICACIONES (GET)
+// ----------------------------------------------------------------------
 app.get('/api/classification', async (req, res) => {
     try {
         if (!examCollection) {
-            return res.status(503).json({ message: "Servicio no disponible: Base de datos no conectada." });
+             return res.status(503).json({ message: "Servicio no disponible: Base de datos no conectada." });
         }
-        const classifications = await examCollection.find({}).toArray();
-        // Mapea la lista a un objeto para fácil acceso por nombre de examen
-        const dataMap = classifications.reduce((acc, item) => {
+        // Obtener todos los documentos y transformarlos en un mapa clave-valor
+        const data = await examCollection.find({}).toArray();
+        const dataMap = data.reduce((acc, item) => {
             acc[item.exam_name] = {
                 tube: item.tube,
                 instructions: item.instructions
@@ -64,7 +67,9 @@ app.get('/api/classification', async (req, res) => {
     }
 });
 
-// 2. ENDPOINT PARA GUARDAR/ACTUALIZAR UNA CLASIFICACIÓN
+// ----------------------------------------------------------------------
+// 2. ENDPOINT PARA GUARDAR/ACTUALIZAR UNA CLASIFICACIÓN (POST)
+// ----------------------------------------------------------------------
 app.post('/api/classification', async (req, res) => {
     try {
         if (!examCollection) {
@@ -93,6 +98,15 @@ app.post('/api/classification', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Servidor Express corriendo en el puerto ${port}`);
-});
+// ----------------------------------------------------------------------
+// 3. INICIO DEL SERVIDOR
+// ----------------------------------------------------------------------
+
+// Verificamos que el puerto exista (Render lo provee) antes de iniciar el listener
+if (!port) {
+    console.error("FALTA LA VARIABLE DE ENTORNO PORT. El servidor no puede iniciar sin ella.");
+} else {
+    app.listen(port, () => {
+        console.log(`Servidor Express corriendo en el puerto ${port}`);
+    });
+}
