@@ -28,433 +28,385 @@
             color: #333;
             text-align: center;
         }
-
-        /* --- Input y Botón --- */
-        #input-area {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
         }
-
-        #fileInput {
-            padding: 10px;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
+        h2 {
+            font-size: 1.2em;
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #555;
         }
-
-        #processButton {
+        
+        /* Botón de Portal */
+        .portal-button {
             background-color: #333;
-            color: white;
+            color: #FFC107;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 1em;
             font-weight: bold;
-            transition: background-color 0.3s;
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            text-align: center;
         }
-        #processButton:hover {
-            background-color: #FFC107;
-            color: #333;
+        .portal-button:hover {
+            background-color: #555;
+        }
+        /* Fin Botón Portal */
+
+        /* 🆕 Estilo para la sección de ingreso de usuario */
+        .user-input-section {
+            width: 100%; 
+            max-width: 400px;
+            margin: 0 auto 20px;
+            padding: 10px;
+            border: 1px solid #FFC107;
+            border-radius: 5px;
+            background-color: #fffde7;
+            box-sizing: border-box;
+        }
+        .user-input-section input[type="text"] {
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 1em;
         }
 
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        input[type="file"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+        }
+        button {
+            background-color: #FFC107;
+            color: #333;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #e0a800;
+        }
         #status {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px;
+            color: #007bff;
             font-weight: bold;
-            color: #333;
         }
-        
-        /* --- Contenedor de Resultados --- */
         #outputList {
+            list-style: none;
+            padding: 0;
             margin-top: 20px;
-            list-style: none;
-            padding: 0;
         }
-
-        /* Grupo de Compañía (Nivel 1: Acordeón) */
-        .company-group {
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
+        .company-item {
+            border: 2px solid #333;
             border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .company-header {
-            background-color: #FFC107;
-            color: #333;
+            margin-bottom: 20px;
             padding: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1em;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background-color: #fff;
         }
-
-        .company-header span:first-child {
-            flex-grow: 1;
-        }
-
-        .company-header .patient-count {
-            background-color: #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 50%;
-            font-size: 0.9em;
-        }
-
-        /* Contenido de Pacientes */
-        .patient-list {
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            background-color: #f9f9f9;
-            /* Acordeón */
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .company-group.active .patient-list {
-            max-height: 2000px; /* Suficiente para expandir */
-            transition: max-height 0.5s ease-in;
-        }
-
-        .patient-item {
-            padding: 10px 15px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .patient-item:last-child {
-            border-bottom: none;
-        }
-
-        .patient-info {
+        .company-name {
+            font-size: 1.4em;
             font-weight: bold;
             color: #333;
-            margin-bottom: 5px;
-            font-size: 0.95em;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #FFC107;
+            padding-bottom: 5px;
         }
-
-        .patient-info span {
-            font-weight: normal;
-            color: #555;
-            margin-left: 5px;
+        .patient-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 10px;
         }
-
-        /* Exámenes */
-        .request-item {
-            background-color: white;
+        .patient-item {
+            background-color: #f0f0f0;
             padding: 10px;
             border-radius: 5px;
-            margin-top: 8px;
-            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-left: 5px solid #007bff;
         }
-
-        .request-header {
+        .patient-name {
             font-weight: bold;
-            color: #555;
+            color: #007bff;
             margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
         }
-
-        .exam-list {
+        .request-list {
             list-style: none;
-            padding: 0;
-            margin: 5px 0 0 0;
+            padding-left: 15px;
+            margin-top: 5px;
+            border-left: 2px dashed #ccc;
+        }
+        .request-item {
+            margin-bottom: 8px;
+        }
+        .request-header {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.95em;
+        }
+        .exam-list {
+            list-style: disc;
             font-size: 0.9em;
             color: #666;
+            padding-left: 20px;
         }
-
-        .exam-item {
-            margin-left: 15px;
-            padding: 2px 0;
-            border-bottom: 1px dotted #eee;
-        }
-
-        .exam-item:last-child {
-            border-bottom: none;
-        }
-        
         .no-exams {
-            color: #e74c3c;
             font-style: italic;
+            color: #999;
+            margin-left: 15px;
             font-size: 0.9em;
         }
-        
-        /* Media Queries para Responsividad */
         @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            #container {
+            .input-group {
                 padding: 15px;
             }
-            h1 {
-                font-size: 1.4em;
+            input[type="file"] {
+                max-width: 100%;
             }
-            .company-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .company-header .patient-count {
-                margin-top: 5px;
-            }
-            .patient-info {
-                font-size: 0.9em;
-            }
-            .request-header {
-                flex-direction: column;
+            .company-name {
+                font-size: 1.2em;
             }
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <h1>Motorizado Lab 🏍️</h1>
-        <h2>Ruta de Exámenes</h2>
+        
+        <a href="https://rmns82839-rgb.github.io/portal-de-toma-de-muestras/" class="portal-button" target="_blank">
+            Volver al Portal Principal
+        </a>
+        
+        <h1>Motorizado Lab 🧪</h1>
+        <h2>Procesamiento de Archivo CSV de Ruta</h2>
 
-        <div id="input-area">
-            <input type="file" id="fileInput" accept=".csv" title="Cargar archivo CSV de la ruta">
-            <button id="processButton">Procesar CSV</button>
+        <div class="user-input-section">
+            <label for="uploaderName" style="display: block; font-weight: bold; margin-bottom: 5px; color: #333;">
+                👤 Tu Identificador (Nombre/Iniciales):
+            </label>
+            <input type="text" id="uploaderName" placeholder="Ej: Juan P. o JP">
         </div>
 
-        <p id="status">Cargue un archivo CSV con la ruta para comenzar.</p>
+        <div class="input-group">
+            <input type="file" id="csvFile" accept=".csv" required>
+            <button onclick="processCSV()">Cargar y Procesar Ruta</button>
+            <button onclick="window.location.href='guia_examenes.html'">Ver Guía de Toma de Muestras</button>
+        </div>
+
+        <p id="status">Esperando archivo CSV...</p>
 
         <ul id="outputList">
             </ul>
     </div>
 
     <script>
-        // URL del backend 
-        const BACKEND_URL = '/api/exams/unique'; 
-        
-        document.getElementById('processButton').addEventListener('click', () => {
-            const file = document.getElementById('fileInput').files[0];
-            if (file) {
-                processCSV(file);
-            } else {
-                document.getElementById('status').textContent = 'Por favor, selecciona un archivo CSV.';
-            }
-        });
+        const API_BACKEND_URL = 'https://motorizado-lab-backend.onrender.com'; // ⚠️ VERIFICA TU URL DE RENDER
 
-        // 1. Manejar el click en el encabezado de la compañía (Acordeón)
-        document.getElementById('outputList').addEventListener('click', (e) => {
-            const header = e.target.closest('.company-header');
-            if (header) {
-                const group = header.closest('.company-group');
-                group.classList.toggle('active');
-            }
-        });
+        let processedData = [];
 
-        // 2. Función para parsear y procesar el CSV
-        function processCSV(file) {
-            document.getElementById('status').textContent = 'Procesando archivo...';
+        function processCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            const statusElement = document.getElementById('status');
+            
+            // 🆕 NUEVO: Obtener el nombre del usuario y validar
+            const uploaderName = document.getElementById('uploaderName').value.trim(); 
+            if (!uploaderName) {
+                alert('❌ Por favor, ingresa tu nombre o iniciales antes de procesar el archivo.');
+                statusElement.textContent = 'Por favor, ingresa tu identificador.';
+                return; 
+            }
+
+            if (!file) {
+                statusElement.textContent = 'Por favor, selecciona un archivo CSV.';
+                return;
+            }
+
+            statusElement.textContent = 'Procesando archivo...';
+            
             Papa.parse(file, {
                 header: true,
                 skipEmptyLines: true,
-                complete: function (results) {
-                    const parsedData = groupDataByCompanyAndPatient(results.data);
+                delimiter: ',',
+                complete: function(results) {
+                    const data = results.data;
+                    const totalRowsProcessed = data.length;
                     
-                    // ⚠️ Paso adicional: Extraer todos los exámenes únicos y enviarlos al backend (Incluyendo el código)
-                    const uniqueExams = extractUniqueExams(parsedData);
-                    saveUniqueExamsToDB(uniqueExams); 
-
-                    renderOutput(parsedData, results.data.length);
+                    if (data.length === 0) {
+                        statusElement.textContent = 'El archivo está vacío o no se pudieron leer los datos.';
+                        return;
+                    }
                     
-                    localStorage.setItem('csv_processed_data', JSON.stringify(parsedData)); 
-                },
-                error: function (error) {
-                    console.error("Error al parsear CSV:", error);
-                    document.getElementById('status').textContent = 'Error al leer el archivo CSV.';
-                }
-            });
-        }
+                    const COL_COMPANY = 'Tipo cliente';
+                    const COL_PATIENT_NAME = 'Nombre Paciente';
+                    const COL_REQUEST_ID = 'N° Solicitud';
+                    const COL_EXAMS = 'Examenes solicitados';
+                    const COL_DOC = 'N° Documento';
 
-        // 3. Agrupar los datos del CSV por Compañía y Paciente (sin cambios aquí)
-        function groupDataByCompanyAndPatient(data) {
-            const companies = {};
-            let totalPatients = 0;
+                    const groupedData = {};
+                    const uniqueExams = new Set();
+                    
+                    data.forEach(row => {
+                        const company = row[COL_COMPANY] ? row[COL_COMPANY].trim() : 'SIN COMPAÑÍA';
+                        const patientKey = `${row[COL_PATIENT_NAME]}-${row[COL_DOC]}`.trim();
+                        const requestId = row[COL_REQUEST_ID] ? row[COL_REQUEST_ID].trim() : 'SIN SOLICITUD';
+                        
+                        const examsStr = row[COL_EXAMS] || '';
+                        const exams = examsStr.split(/[\/\/|;]/) 
+                            .map(exam => exam.replace(/\[.*\]|\s*\d+\s*/g, '').trim())
+                            .filter(exam => exam.length > 2);
 
-            data.forEach(row => {
-                const companyName = row['Tipo cliente'] || 'Sin Compañía';
-                const patientName = row['Nombre Paciente'] || 'Desconocido';
-                const docId = row['N° Documento'] || 'Sin ID';
-                const requestNumber = row['N° Solicitud'] || 'Sin Solicitud';
-                const addressPhone = row['Direccion y Telefono del paciente'] || 'Sin Dirección/Teléfono';
-                const requestedExamsRaw = row['Examenes solicitados'] || '';
-                const appointmentTime = row['Hora cita'] || 'N/A';
-                
-                // Dividir y limpiar los exámenes. El separador parece ser '//'
-                const exams = requestedExamsRaw.split('//').map(exam => exam.trim()).filter(exam => exam.length > 0);
-
-                if (!companies[companyName]) {
-                    companies[companyName] = {
-                        name: companyName,
-                        patients: {},
-                        patientList: []
-                    };
-                }
-
-                const patientKey = `${docId}-${patientName}`;
-
-                if (!companies[companyName].patients[patientKey]) {
-                    companies[companyName].patients[patientKey] = {
-                        name: patientName,
-                        docId: docId,
-                        addressPhone: addressPhone,
-                        requests: []
-                    };
-                    companies[companyName].patientList.push(companies[companyName].patients[patientKey]);
-                    totalPatients++;
-                }
-                
-                // Añadir la solicitud al paciente 
-                companies[companyName].patients[patientKey].requests.push({
-                    requestNumber: requestNumber,
-                    appointmentTime: appointmentTime,
-                    exams: exams
-                });
-            });
-
-            const sortedCompanies = Object.values(companies).sort((a, b) => a.name.localeCompare(b.name));
-            
-            return { sortedCompanies, totalPatients };
-        }
-        
-        // 4. Extraer los exámenes únicos para la lista maestra (¡LÓGICA DE CÓDIGO AÑADIDA!)
-        function extractUniqueExams(parsedData) {
-            const uniqueExams = new Map();
-            // Regex para capturar el código (6 dígitos) y el nombre restante
-            const examRegex = /^(\d{6})\s*(.*)/; 
-
-            parsedData.sortedCompanies.forEach(company => {
-                company.patientList.forEach(patient => {
-                    patient.requests.forEach(request => {
-                        request.exams.forEach(examRaw => {
-                            const match = examRaw.match(examRegex);
-                            let examCode = 'N/A';
-                            let examName = examRaw.trim(); 
-
-                            if (match) {
-                                // Si hay match, el primer grupo es el código, el segundo el nombre restante
-                                examCode = match[1].trim(); 
-                                // Usar el nombre limpio. Si no hay nada después del código, se usa el raw original.
-                                examName = match[2] ? match[2].trim() : examName; 
-                            }
-                            
-                            // Usamos el nombre limpio para la unicidad, y garantizamos el par (code, name)
-                            if (!uniqueExams.has(examName)) {
-                                uniqueExams.set(examName, { 
-                                    exam_code: examCode, 
-                                    exam_name: examName 
-                                });
-                            }
-                        });
+                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES
+                        exams.forEach(exam => uniqueExams.add(exam));
+                        
+                        if (!groupedData[company]) {
+                            groupedData[company] = {};
+                        }
+                        
+                        if (!groupedData[company][patientKey]) {
+                            groupedData[company][patientKey] = {
+                                name: row[COL_PATIENT_NAME] ? row[COL_PATIENT_NAME].trim() : 'N/A',
+                                document: row[COL_DOC] ? row[COL_DOC].trim() : 'N/A',
+                                requests: {}
+                            };
+                        }
+                        
+                        if (!groupedData[company][patientKey].requests[requestId]) {
+                            groupedData[company][patientKey].requests[requestId] = {
+                                id: requestId,
+                                exams: exams
+                            };
+                        } else {
+                            exams.forEach(exam => {
+                                if (!groupedData[company][patientKey].requests[requestId].exams.includes(exam)) {
+                                    groupedData[company][patientKey].requests[requestId].exams.push(exam);
+                                }
+                            });
+                        }
                     });
-                });
-            });
 
-            return Array.from(uniqueExams.values());
-        }
+                    // *** PUNTO CLAVE: ENVIAR EXÁMENES ÚNICOS AL SERVIDOR CON AUDITORÍA (REEMPLAZA localStorage) ***
+                    fetch(`${API_BACKEND_URL}/api/exams/save-unique`, { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            exams: Array.from(uniqueExams).sort(),
+                            added_by: uploaderName // 👈 Enviamos el ID del usuario
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al guardar lista única en MongoDB');
+                        }
+                        console.log("Lista única de exámenes enviada a MongoDB. Los nuevos exámenes se registrarán con el ID:", uploaderName);
+                        statusElement.textContent += ' (Lista maestra de exámenes actualizada).';
+                    })
+                    .catch(error => {
+                        console.error('Error de red al guardar exámenes:', error);
+                        alert('Hubo un error al guardar los exámenes únicos en el servidor. Revisa la consola.');
+                    });
 
-        // 5. Enviar la lista de exámenes únicos al servidor
-        async function saveUniqueExamsToDB(uniqueExams) {
-            try {
-                const statusElement = document.getElementById('status');
-                statusElement.textContent = `Procesando exámenes únicos (${uniqueExams.length} encontrados)...`;
-                
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(uniqueExams),
-                });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // *** SE MANTIENE EL ALMACENAMIENTO LOCAL PARA LA LISTA DE PACIENTES ***
+                    // Esto es solo para que el index.html recuerde la última ruta visualmente
+                    localStorage.setItem('csv_processed_data', JSON.stringify(groupedData));
+                    
+                    renderOutput(groupedData, totalRowsProcessed);
+                },
+                error: function(error) {
+                    statusElement.textContent = `Error al parsear el archivo: ${error.message}`;
+                    console.error('PapaParse error:', error);
                 }
-
-                const result = await response.json();
-                console.log('Respuesta del servidor al guardar exámenes:', result);
-                statusElement.textContent = `Proceso finalizado. Exámenes únicos guardados.`;
-
-            } catch (error) {
-                console.error("Error al guardar exámenes únicos en DB:", error);
-                document.getElementById('status').textContent = `Error al guardar exámenes únicos. Revisa la consola.`;
-            }
+            });
         }
-        
-        // 6. Renderizar la salida de datos (sin cambios relevantes)
-        function renderOutput(parsedData, totalRowsProcessed) {
+
+        // Función para renderizar el output
+        function renderOutput(groupedData, totalRowsProcessed) {
             const outputList = document.getElementById('outputList');
             const statusElement = document.getElementById('status');
             outputList.innerHTML = '';
             
-            const { sortedCompanies, totalPatients } = parsedData;
+            const companyNames = Object.keys(groupedData);
+            const sortedCompanies = companyNames.sort();
+            let totalPatients = 0;
 
             if (sortedCompanies.length === 0) {
-                 statusElement.textContent = `Proceso finalizado. No se encontraron datos válidos.`;
+                 statusElement.textContent = 'Proceso finalizado, pero no se encontraron datos válidos.';
                  return;
             }
 
-            sortedCompanies.forEach(company => {
+            sortedCompanies.forEach(companyName => {
+                const companyData = groupedData[companyName];
+                const patientKeys = Object.keys(companyData);
+                totalPatients += patientKeys.length;
+
                 const companyListItem = document.createElement('li');
-                companyListItem.className = 'company-group';
+                companyListItem.className = 'company-item';
 
-                // Encabezado de la Compañía
-                const companyHeader = document.createElement('div');
-                companyHeader.className = 'company-header';
-                companyHeader.innerHTML = `
-                    <span>${company.name}</span>
-                    <span class="patient-count">${company.patientList.length} Paciente(s)</span>
-                `;
-                companyListItem.appendChild(companyHeader);
+                const companyNameHeader = document.createElement('h3');
+                companyNameHeader.className = 'company-name';
+                companyNameHeader.textContent = `${companyName} (${patientKeys.length} Pacientes)`;
+                companyListItem.appendChild(companyNameHeader);
 
-                // Lista de Pacientes
                 const patientList = document.createElement('ul');
                 patientList.className = 'patient-list';
+
+                const sortedPatientKeys = patientKeys.sort((a, b) => companyData[a].name.localeCompare(companyData[b].name));
                 
-                company.patientList.forEach(patient => {
+                sortedPatientKeys.forEach(patientKey => {
+                    const patientData = companyData[patientKey];
                     const patientListItem = document.createElement('li');
                     patientListItem.className = 'patient-item';
 
-                    // Información del Paciente
-                    const patientInfo = document.createElement('div');
-                    patientInfo.className = 'patient-info';
-                    patientInfo.innerHTML = `
-                        Paciente: <span>${patient.name} (${patient.docId})</span><br>
-                        Dirección/Teléfono: <span>${patient.addressPhone}</span>
-                    `;
-                    patientListItem.appendChild(patientInfo);
+                    const patientNameHeader = document.createElement('p');
+                    patientNameHeader.className = 'patient-name';
+                    patientNameHeader.textContent = `${patientData.name} (CC: ${patientData.document})`;
+                    patientListItem.appendChild(patientNameHeader);
 
-                    // Solicitudes del Paciente
-                    patient.requests.forEach(request => {
+                    const requestKeys = Object.keys(patientData.requests);
+                    
+                    requestKeys.forEach(requestKey => {
+                        const req = patientData.requests[requestKey];
                         const reqItem = document.createElement('div');
                         reqItem.className = 'request-item';
-                        
-                        const reqHeader = document.createElement('div');
+
+                        const reqHeader = document.createElement('p');
                         reqHeader.className = 'request-header';
-                        reqHeader.innerHTML = `
-                            <span>N° Solicitud: <strong>${request.requestNumber}</strong></span>
-                            <span>Hora Cita: <strong>${request.appointmentTime}</strong></span>
-                        `;
+                        reqHeader.textContent = `Solicitud N°: ${req.id}`;
                         reqItem.appendChild(reqHeader);
 
-                        if (request.exams && request.exams.length > 0) {
+                        if (req.exams && req.exams.length > 0) {
                             const examList = document.createElement('ul');
                             examList.className = 'exam-list';
-                            request.exams.forEach(exam => {
+                            req.exams.forEach(exam => {
                                 const examItem = document.createElement('li');
-                                examItem.className = 'exam-item';
                                 examItem.textContent = exam;
                                 examList.appendChild(examItem);
                             });
