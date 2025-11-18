@@ -244,7 +244,7 @@
                             .map(exam => exam.replace(/\[.*\]|\s*\d+\s*/g, '').trim())
                             .filter(exam => exam.length > 2);
 
-                        // GUARDA LA LISTA ÚNICA DE EXÁMENES
+                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES
                         exams.forEach(exam => uniqueExams.add(exam));
                         
                         if (!groupedData[company]) {
