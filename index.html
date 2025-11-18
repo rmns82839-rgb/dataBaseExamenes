@@ -61,6 +61,26 @@
         }
         /* Fin Botón Portal */
 
+        /* 🆕 Estilo para la sección de ingreso de usuario */
+        .user-input-section {
+            width: 100%; 
+            max-width: 400px;
+            margin: 0 auto 20px;
+            padding: 10px;
+            border: 1px solid #FFC107;
+            border-radius: 5px;
+            background-color: #fffde7;
+            box-sizing: border-box;
+        }
+        .user-input-section input[type="text"] {
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-size: 1em;
+        }
+
         .input-group {
             display: flex;
             flex-direction: column;
@@ -185,6 +205,13 @@
         <h1>Motorizado Lab 🧪</h1>
         <h2>Procesamiento de Archivo CSV de Ruta</h2>
 
+        <div class="user-input-section">
+            <label for="uploaderName" style="display: block; font-weight: bold; margin-bottom: 5px; color: #333;">
+                👤 Tu Identificador (Nombre/Iniciales):
+            </label>
+            <input type="text" id="uploaderName" placeholder="Ej: Juan P. o JP">
+        </div>
+
         <div class="input-group">
             <input type="file" id="csvFile" accept=".csv" required>
             <button onclick="processCSV()">Cargar y Procesar Ruta</button>
@@ -198,6 +225,8 @@
     </div>
 
     <script>
+        const API_BACKEND_URL = 'https://motorizado-lab-backend.onrender.com'; // ⚠️ VERIFICA TU URL DE RENDER
+
         let processedData = [];
 
         function processCSV() {
@@ -205,6 +234,14 @@
             const file = fileInput.files[0];
             const statusElement = document.getElementById('status');
             
+            // 🆕 NUEVO: Obtener el nombre del usuario y validar
+            const uploaderName = document.getElementById('uploaderName').value.trim(); 
+            if (!uploaderName) {
+                alert('❌ Por favor, ingresa tu nombre o iniciales antes de procesar el archivo.');
+                statusElement.textContent = 'Por favor, ingresa tu identificador.';
+                return; 
+            }
+
             if (!file) {
                 statusElement.textContent = 'Por favor, selecciona un archivo CSV.';
                 return;
@@ -273,8 +310,32 @@
                         }
                     });
 
-                    // *** PUNTO CLAVE: GUARDAR CSV Y DATA PROCESADA EN LOCALSTORAGE ***
-                    localStorage.setItem('csv_unique_exams', JSON.stringify(Array.from(uniqueExams).sort()));
+                    // *** PUNTO CLAVE: ENVIAR EXÁMENES ÚNICOS AL SERVIDOR CON AUDITORÍA (REEMPLAZA localStorage) ***
+                    fetch(`${API_BACKEND_URL}/api/exams/save-unique`, { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ 
+                            exams: Array.from(uniqueExams).sort(),
+                            added_by: uploaderName // 👈 Enviamos el ID del usuario
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al guardar lista única en MongoDB');
+                        }
+                        console.log("Lista única de exámenes enviada a MongoDB. Los nuevos exámenes se registrarán con el ID:", uploaderName);
+                        statusElement.textContent += ' (Lista maestra de exámenes actualizada).';
+                    })
+                    .catch(error => {
+                        console.error('Error de red al guardar exámenes:', error);
+                        alert('Hubo un error al guardar los exámenes únicos en el servidor. Revisa la consola.');
+                    });
+
+
+                    // *** SE MANTIENE EL ALMACENAMIENTO LOCAL PARA LA LISTA DE PACIENTES ***
+                    // Esto es solo para que el index.html recuerde la última ruta visualmente
                     localStorage.setItem('csv_processed_data', JSON.stringify(groupedData));
                     
                     renderOutput(groupedData, totalRowsProcessed);
