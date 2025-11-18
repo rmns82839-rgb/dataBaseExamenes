@@ -98,19 +98,19 @@
             border-bottom: none;
         }
 
-        /* 🟢 NUEVO: Contenedor para el indicador y el nombre del examen */
+        /* ✅ FIX 1: Contenedor para el indicador y el nombre del examen (Mejora móvil) */
         .exam-header-wrapper {
             display: flex;
             align-items: center;
             flex-basis: 35%; 
             min-width: 150px;
             margin-right: 10px;
-            padding-right: 5px; /* Pequeño padding para evitar que se pegue al formulario */
+            padding-right: 5px; 
         }
 
         .exam-name-display {
             font-weight: bold;
-            flex-grow: 1; /* Permite que el nombre ocupe el resto del espacio */
+            flex-grow: 1; 
         }
         .tube-indicator {
             width: 15px;
@@ -203,7 +203,7 @@
                 align-items: flex-start;
                 gap: 5px;
             }
-            /* 🟢 FIX 1: Permite que el nombre del examen y el código se vean completos */
+            /* ✅ FIX 1: Permite que el nombre del examen y el código se vean completos */
             .exam-header-wrapper {
                  flex-basis: 100%;
                  min-width: 0;
@@ -323,6 +323,7 @@
         </div>
 
     </div>
+
     <script>
         // 1. CONFIGURACIÓN DEL ENDPOINT (¡VERIFICA ESTA URL!)
         const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; 
@@ -351,7 +352,7 @@
         // Carga las clasificaciones guardadas en MongoDB
         async function getClassificationDataOnline() {
             try {
-                // ✅ FIX 1: Agregar Cache Buster para asegurar datos frescos
+                // ✅ FIX 2: Agregar Cache Buster para asegurar datos frescos
                 const timestamp = new Date().getTime();
                 const response = await fetch(`${API_BASE_URL}?t=${timestamp}`); 
                 
@@ -409,6 +410,31 @@
                     newButton.disabled = false;
                     newButton.textContent = 'Guardar';
                 }
+            }
+        }
+        
+        function updateLocalCacheAndIndicator(examKey) {
+            const select = document.getElementById(`select-${examKey}`);
+            const input = document.getElementById(`input-${examKey}`);
+            const indicator = document.querySelector(`.csv-exam-item[data-exam="${examKey}"] .tube-indicator`);
+            const button = document.getElementById(`save-btn-${examKey}`);
+
+            if (select && input && indicator) {
+                const tubeValue = select.value;
+                const instructionsValue = input.value;
+
+                // 1. Actualizar caché local (inmediato)
+                classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
+                
+                // 2. Actualizar indicador visualmente (inmediato)
+                const tubeClass = tubeOptions[tubeValue];
+                Object.values(tubeOptions).forEach(cls => indicator.classList.remove(cls));
+                indicator.classList.add(tubeClass);
+
+                // 3. Habilitar el botón de Guardar (para forzar la sincronización)
+                if (button) button.disabled = false;
+
+                document.getElementById('saveStatus').textContent = `Clasificación de "${examKey}" cambiada. Presiona "Guardar" para sincronizar en línea.`;
             }
         }
         
@@ -479,6 +505,8 @@
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'tube-content';
                     
+                    examsInGroup.sort((a, b) => a.examKey.localeCompare(b.examKey));
+
                     examsInGroup.forEach(examData => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'csv-exam-item';
@@ -486,18 +514,26 @@
 
                         const indicator = document.createElement('span');
                         indicator.className = 'tube-indicator ' + tubeOptions[examData.tube];
-                        itemDiv.appendChild(indicator);
                         
                         const nameSpan = document.createElement('span');
                         nameSpan.className = 'exam-name-display';
-                        nameSpan.textContent = examData.examKey;
-                        itemDiv.appendChild(nameSpan);
+                        nameSpan.textContent = examData.examKey; 
+                        
+                        // ✅ FIX 1: Envolver indicador y nombre para mejor control móvil
+                        const nameWrapper = document.createElement('div');
+                        nameWrapper.className = 'exam-header-wrapper';
+                        nameWrapper.appendChild(indicator);
+                        nameWrapper.appendChild(nameSpan);
+                        itemDiv.appendChild(nameWrapper);
+
 
                         const formDiv = document.createElement('div');
                         formDiv.className = 'classification-form';
 
+                        // Select de Tubo
                         const select = document.createElement('select');
                         select.id = `select-${examData.examKey}`;
+                        select.onchange = () => updateLocalCacheAndIndicator(examData.examKey);
                         
                         Object.keys(tubeOptions).forEach(optionName => {
                             const option = document.createElement('option');
@@ -510,18 +546,25 @@
                         });
                         formDiv.appendChild(select);
 
+                        // Input de Instrucciones
                         const input = document.createElement('input');
                         input.type = 'text';
                         input.id = `input-${examData.examKey}`;
                         input.placeholder = 'Instrucción (e.g., Ayuno, Hielo)';
                         input.value = examData.instructions;
+                        input.onblur = () => updateLocalCacheAndIndicator(examData.examKey); 
                         formDiv.appendChild(input);
                         
+                        // Botón de Guardar
                         const saveBtn = document.createElement('button');
                         saveBtn.id = `save-btn-${examData.examKey}`;
                         saveBtn.className = 'save-button';
                         saveBtn.textContent = 'Guardar';
                         saveBtn.onclick = () => saveClassificationTrigger(examData.examKey);
+                        
+                        // Si el examen está clasificado, deshabilitar el botón inicialmente hasta que haya un cambio local
+                        saveBtn.disabled = (examData.tube !== 'No Clasificado'); 
+                        
                         formDiv.appendChild(saveBtn);
 
 
@@ -534,9 +577,10 @@
                 }
             });
              document.getElementById('saveStatus').textContent = `Lista de ${totalExamsCount} exámenes cargados. Clasificación leída de MongoDB y agrupada.`;
+            filterExams(); 
         }
         
-        // 4. LÓGICA DE CARGA DE EXÁMENES (FIX CRÍTICO)
+        // 4. LÓGICA DE CARGA DE EXÁMENES (FIX CRÍTICO para sincronización en incógnito)
 
         async function loadAndRenderCSVExams() {
             const container = document.getElementById('csvExamsList');
@@ -556,7 +600,7 @@
                 
             } else if (Object.keys(classificationData).length > 0) {
                 // B) MODO INCÓGNITO/SIN CSV: Usar las claves de la data leída de MongoDB
-                // ✅ FIX 2: Esto se ejecuta si LocalStorage está vacío, mostrando la data guardada.
+                // ✅ FIX 3: Esto se ejecuta si LocalStorage está vacío, mostrando la data guardada.
                 examsToRender = Object.keys(classificationData).sort();
                 
                 document.getElementById('csvExamsContainer').querySelector('h2').textContent = 'CLASIFICACIÓN DE EXÁMENES (BASE DE DATOS EN LÍNEA) ☁️';
@@ -571,7 +615,7 @@
             renderGroupedExams(examsArrayGlobal, classificationData);
         }
 
-        // 5. FUNCIONES ADICIONALES
+        // 5. FUNCIONES ADICIONALES (Se mantienen intactas)
         function toggleAccordion(header) {
             const group = header.closest('.tube-group');
             group.classList.toggle('active');
@@ -583,11 +627,11 @@
             const guideContainer = document.getElementById('examensList');
             
             if (searchTerm.length === 0) {
-                // Si la búsqueda está vacía, mostrar todo y colapsar los acordeones.
                 [...csvContainer.querySelectorAll('.csv-group'), ...guideContainer.querySelectorAll('.tube-group')].forEach(group => {
                     group.style.display = 'block';
                     group.classList.remove('active');
-                    [...group.querySelectorAll('.csv-exam-item'), ...group.querySelectorAll('.guide-exam-item')].forEach(item => item.style.display = 'flex');
+                    [...group.querySelectorAll('.csv-exam-item')].forEach(item => item.style.display = 'flex');
+                    [...group.querySelectorAll('.guide-exam-item')].forEach(item => item.style.display = 'block');
                 });
                 return;
             }
@@ -615,14 +659,15 @@
                 }
             });
 
-            // 2. Filtrar Acordeones del CSV (EXÁMENES DE RUTA)
+            // 2. Filtrar Acordeones del CSV (EXÁMENES DE RUTA/PREVIOS)
              csvContainer.querySelectorAll('.csv-group').forEach(group => {
                 let foundInGroup = false;
                 const items = [...group.querySelectorAll('.csv-exam-item')];
 
                 items.forEach(item => {
-                    const name = item.querySelector('.exam-name-display').textContent.toLowerCase();
-                    const instructions = item.querySelector('input[type="text"]').value.toLowerCase();
+                    const name = item.dataset.exam.toLowerCase(); 
+                    const instructionsInput = item.querySelector('input[type="text"]');
+                    const instructions = instructionsInput ? instructionsInput.value.toLowerCase() : '';
                     
                     if (name.includes(searchTerm) || instructions.includes(searchTerm)) {
                         item.style.display = 'flex';
@@ -654,7 +699,5 @@
         });
 
     </script>
-    
 </body>
 </html>
-
