@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motorizado Lab - Guía Rápida 🧪</title>
     <style>
-        /* ... (MANTÉN TODOS LOS ESTILOS CSS QUE TE DI ANTERIORMENTE) ... */
-        /* Asegúrate de que los estilos CSS para .tube-indicator.yellow, .tube-indicator.lila, etc. estén aquí */
-        
         /* Paleta: #333 (Negro Motorizado), #FFC107 (Amarillo de Seguridad), #F4F4F9 (Fondo claro) */
         body {
             font-family: 'Arial', sans-serif;
@@ -15,6 +12,27 @@
             padding: 20px 10px; 
             background-color: #f4f4f9;
         }
+        /* Estilos del Botón de Portal (adicional) */
+        .portal-button {
+            background-color: #555;
+            color: #fff;
+            font-size: 0.9em;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: block;
+            width: 100%;
+            max-width: 900px;
+            margin: 10px auto 20px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease;
+        }
+        .portal-button:hover {
+            background-color: #777;
+        }
+
         #container {
             width: 100%;
             max-width: 900px; 
@@ -24,7 +42,6 @@
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             box-sizing: border-box;
-            margin-top: 60px;
         }
         h1 {
             color: #333;
@@ -163,6 +180,9 @@
     </style>
 </head>
 <body>
+    
+    <button class="portal-button" onclick="window.location.href='index.html'">VOLVER AL PORTAL PRINCIPAL (Carga CSV)</button>
+
     <div id="container">
         <h1>Guía Rápida de Clasificación de Muestras</h1>
 
@@ -297,16 +317,19 @@
             container.innerHTML = '';
             
             let examsArray = [];
+            let statusText = '';
             
             if (storedExams) {
                 // Opción 1: Hay exámenes cargados de una ruta CSV (Muestra los de la ruta)
                 examsArray = JSON.parse(storedExams);
+                statusText = `Lista de ${examsArray.length} exámenes cargados de la ÚLTIMA RUTA CSV. Clasificación leída de MongoDB.`;
             } else if (Object.keys(classificationData).length > 0) {
                 // Opción 2: No hay ruta CSV cargada, pero hay clasificaciones guardadas (Muestra los clasificados previamente)
                 examsArray = Object.keys(classificationData).sort();
+                statusText = `Lista de ${examsArray.length} exámenes clasificados previamente.`;
             } else {
                 // Opción 3: No hay CSV y no hay nada en MongoDB (Mensaje de vacío)
-                container.innerHTML = `<p style="color: #555; font-weight: bold; text-align: center;">ℹ️ No hay exámenes cargados de la ruta CSV ni clasificaciones previas en la base de datos. Clasifica un examen en esta vista o carga un CSV en la página principal.</p>`;
+                container.innerHTML = `<p style="color: #555; font-weight: bold; text-align: center;">ℹ️ No hay exámenes cargados de la ruta CSV ni clasificaciones previas. Clasifica un examen para guardarlo.</p>`;
                 document.getElementById('saveStatus').textContent = `Estado: Sin lista de exámenes cargada.`;
                 return;
             }
@@ -328,7 +351,7 @@
                 // Indicador de color actual
                 const tubeClassKey = classification.tube || 'No Clasificado';
                 const indicator = document.createElement('span');
-                indicator.className = 'tube-indicator ' + tubeOptions[tubeClassKey].replace(' ', '.'); // Usa la clave correcta
+                indicator.className = 'tube-indicator ' + tubeOptions[tubeClassKey].replace(' ', '.'); 
                 itemDiv.appendChild(indicator);
                 
                 // Nombre del examen (CON CÓDIGO)
@@ -371,11 +394,7 @@
             });
             
             // Mensaje de estado final
-            if (storedExams) {
-                document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes cargados de la ÚLTIMA RUTA CSV. Clasificación leída de MongoDB.`;
-            } else {
-                 document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes clasificados previamente.`;
-            }
+            document.getElementById('saveStatus').textContent = statusText;
         }
 
         // 4. FUNCIONES EXISTENTES
