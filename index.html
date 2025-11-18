@@ -51,8 +51,7 @@
             text-align: center;
             margin-bottom: 30px;
         }
-        /* Estilo general de los botones en esta sección */
-        .action-buttons button, .portal-actions button {
+        .action-buttons button {
             background-color: #333; /* Fondo oscuro */
             color: #FFC107; /* Texto amarillo */
             padding: 12px 25px; 
@@ -65,25 +64,13 @@
             box-sizing: border-box;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: background-color 0.2s ease, transform 0.1s;
-            margin-top: 10px; /* Separación entre botones */
         }
-        .action-buttons button:hover, .portal-actions button:hover {
+        .action-buttons button:hover {
             background-color: #555;
             transform: translateY(-2px);
         }
-        .action-buttons button:active, .portal-actions button:active {
+        .action-buttons button:active {
             transform: translateY(0);
-        }
-        .portal-actions button {
-             background-color: #007bff; /* Color azul para el portal */
-             color: white;
-             border: 1px solid #0056b3;
-             font-size: 0.9em;
-             padding: 10px 25px;
-             margin-bottom: 20px;
-        }
-        .portal-actions button:hover {
-            background-color: #0056b3;
         }
         #status {
             font-size: 1.1em;
@@ -93,7 +80,7 @@
             background-color: #e9f7ff;
             text-align: center;
         }
-        /* Estilos de Contenedores de Datos (sin cambios) */
+        /* Estilos de Contenedores de Datos */
         #outputList {
             list-style: none;
             padding: 0;
@@ -107,7 +94,7 @@
             background-color: #ffffff;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-        /* Colores de Compañía */
+        /* Colores de Compañía (Conservamos diferenciación) */
         .company-group.fsfb-blue { border-color: #007bff; background-color: #e6f7ff; }
         .company-group.other-red { border-color: #dc3545; background-color: #ffeaea; }
         
@@ -158,13 +145,10 @@
             h1 {
                 font-size: 2.5em;
             }
-            .action-buttons button, .portal-actions button {
+            .action-buttons button {
                 width: auto;
                 min-width: 350px;
                 font-size: 1.1em;
-            }
-            .portal-actions button {
-                font-size: 1em;
             }
         }
     </style>
@@ -174,12 +158,7 @@
     <div id="container">
         <h1>Motorizados Lab 🧪</h1>
         <p>Sistema de Gestión de Rutas y Carga CSV</p>
-        
-        <div class="portal-actions">
-            <button onclick="window.location.href='https://rmns82839-rgb.github.io/portal-de-toma-de-muestras/'">
-                VOLVER AL PORTAL PRINCIPAL
-            </button>
-        </div>
+
         <input type="file" id="csvFile" accept=".csv" required>
 
         <div class="action-buttons">
@@ -205,9 +184,12 @@
             outputList.innerHTML = ''; 
             statusElement.textContent = "Datos recibidos de la aplicación principal. Procesando...";
 
-            const { processedData, uniqueExamsForGuide } = processData(csvData);
+            const processedData = processData(csvData);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(processedData));
-            localStorage.setItem('csv_unique_exams', JSON.stringify(uniqueExamsForGuide)); // Guardamos la lista de la guía
+            
+            // GUARDAR EXÁMENES ÚNICOS CON CÓDIGO
+            const uniqueExams = getUniqueExams(csvData);
+            localStorage.setItem('csv_unique_exams', JSON.stringify(uniqueExams)); 
 
             renderData(processedData, csvData.length);
             
@@ -245,10 +227,13 @@
                             }
                             
                             // 1. Lógica de procesamiento local para esta aplicación (Inicio)
-                            const { processedData, uniqueExamsForGuide } = processData(results.data);
+                            const processedData = processData(results.data);
                             localStorage.setItem(STORAGE_KEY, JSON.stringify(processedData));
-                            localStorage.setItem('csv_unique_exams', JSON.stringify(uniqueExamsForGuide)); // Guardamos la lista de la guía
 
+                            // 🚨 CORRECCIÓN: GUARDAR EXÁMENES ÚNICOS CON CÓDIGO
+                            const uniqueExams = getUniqueExams(results.data);
+                            localStorage.setItem('csv_unique_exams', JSON.stringify(uniqueExams));
+                            
                             renderData(processedData, results.data.length);
                             statusElement.textContent = "Datos cargados exitosamente. Procesando y guardando...";
 
@@ -280,7 +265,24 @@
                     statusElement.textContent = "Esperando la carga de un archivo CSV de ruta...";
                 }
             }
+            
+            // 🚨 FUNCIÓN PARA RECUPERAR TODOS LOS EXÁMENES ÚNICOS (CON CÓDIGO)
+            function getUniqueExams(data) {
+                const uniqueExams = new Set();
+                const examsCol = 'Examenes solicitados'; 
 
+                data.forEach(row => {
+                    const examsString = row[examsCol];
+                    if (examsString && String(examsString).trim().length > 0) {
+                        // Separar los exámenes por "//" y mantener el texto completo (incluyendo códigos)
+                        const exams = String(examsString).split('//').map(exam => exam.trim()).filter(exam => exam.length > 0);
+                        exams.forEach(exam => uniqueExams.add(exam));
+                    }
+                });
+                return Array.from(uniqueExams).sort();
+            }
+            
+            // FUNCIÓN EXISTENTE: processData
             function processData(data) {
                 const companyData = {};
                 
@@ -290,9 +292,6 @@
                 const docCol = 'N° Documento';
                 const nameCol = 'Nombre Paciente';
                 const examsCol = 'Examenes solicitados'; 
-
-                // --- NUEVA LISTA GLOBAL PARA LA GUÍA ---
-                const uniqueExamsForGuide = new Set(); 
 
                 data.forEach(row => {
                     const company = row[companyCol] ? String(row[companyCol]).trim() : 'COMPAÑÍA DESCONOCIDA';
@@ -319,17 +318,10 @@
                         
                         let processedExams = [];
                         if (examsString && String(examsString).trim().length > 0) {
-                            // Separar los exámenes por "//"
-                            const exams = String(examsString).split('//').map(exam => {
-                                // ⚠️ MODIFICACIÓN CLAVE: Mantiene códigos, elimina texto entre corchetes [...]
-                                return exam.replace(/\[.*?\]/g, '').trim(); 
-                            }).filter(exam => exam.length > 2);
-                            
+                            // Separar los exámenes por "//" y mantener el texto completo (incluyendo códigos)
+                            const exams = String(examsString).split('//').map(exam => exam.trim()).filter(exam => exam.length > 0);
                             const currentExams = new Set();
-                            exams.forEach(exam => {
-                                currentExams.add(exam);
-                                uniqueExamsForGuide.add(exam); 
-                            });
+                            exams.forEach(exam => currentExams.add(exam));
                             processedExams = Array.from(currentExams).sort();
                         }
                         
@@ -339,12 +331,7 @@
                         });
                     }
                 });
-
-                // Devolvemos tanto los datos procesados como la lista de exámenes para la guía
-                return { 
-                    processedData: companyData, 
-                    uniqueExamsForGuide: Array.from(uniqueExamsForGuide).sort() 
-                };
+                return companyData;
             }
 
             function renderData(companyData, totalRowsProcessed) {
