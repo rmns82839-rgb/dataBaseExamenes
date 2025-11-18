@@ -51,7 +51,8 @@
             text-align: center;
             margin-bottom: 30px;
         }
-        .action-buttons button {
+        /* Estilo general de los botones en esta sección */
+        .action-buttons button, .portal-actions a button {
             background-color: #333; /* Fondo oscuro */
             color: #FFC107; /* Texto amarillo */
             padding: 12px 25px; 
@@ -64,13 +65,25 @@
             box-sizing: border-box;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: background-color 0.2s ease, transform 0.1s;
+            margin-top: 10px; /* Separación entre botones */
         }
-        .action-buttons button:hover {
+        .action-buttons button:hover, .portal-actions a button:hover {
             background-color: #555;
             transform: translateY(-2px);
         }
-        .action-buttons button:active {
+        .action-buttons button:active, .portal-actions a button:active {
             transform: translateY(0);
+        }
+        .portal-actions a button {
+             background-color: #007bff; /* Color azul para el portal */
+             color: white;
+             border: 1px solid #0056b3;
+             font-size: 0.9em;
+             padding: 10px 25px;
+             margin-bottom: 20px;
+        }
+        .portal-actions a button:hover {
+            background-color: #0056b3;
         }
         #status {
             font-size: 1.1em;
@@ -80,7 +93,7 @@
             background-color: #e9f7ff;
             text-align: center;
         }
-        /* Estilos de Contenedores de Datos */
+        /* Estilos de Contenedores de Datos (sin cambios) */
         #outputList {
             list-style: none;
             padding: 0;
@@ -94,7 +107,7 @@
             background-color: #ffffff;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
-        /* Colores de Compañía (Conservamos diferenciación) */
+        /* Colores de Compañía */
         .company-group.fsfb-blue { border-color: #007bff; background-color: #e6f7ff; }
         .company-group.other-red { border-color: #dc3545; background-color: #ffeaea; }
         
@@ -145,10 +158,13 @@
             h1 {
                 font-size: 2.5em;
             }
-            .action-buttons button {
+            .action-buttons button, .portal-actions a button {
                 width: auto;
                 min-width: 350px;
                 font-size: 1.1em;
+            }
+            .portal-actions a button {
+                font-size: 1em;
             }
         }
     </style>
@@ -158,7 +174,12 @@
     <div id="container">
         <h1>Motorizados Lab 🧪</h1>
         <p>Sistema de Gestión de Rutas y Carga CSV</p>
-
+        
+        <div class="portal-actions">
+            <a href="https://rmns82839-rgb.github.io/portal-de-toma-de-muestras/">
+                <button>VOLVER AL PORTAL PRINCIPAL</button>
+            </a>
+        </div>
         <input type="file" id="csvFile" accept=".csv" required>
 
         <div class="action-buttons">
