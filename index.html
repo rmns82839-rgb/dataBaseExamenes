@@ -39,7 +39,7 @@
             color: #555;
         }
         
-        /* Botón de Portal AGREGADO */
+        /* Botón de Portal */
         .portal-button {
             background-color: #333;
             color: #FFC107;
@@ -53,7 +53,7 @@
             width: 100%;
             margin-bottom: 20px;
             transition: background-color 0.2s;
-            text-decoration: none; /* Quitar el subrayado del enlace */
+            text-decoration: none;
             text-align: center;
         }
         .portal-button:hover {
@@ -198,7 +198,6 @@
     </div>
 
     <script>
-        // Variables para almacenar los datos procesados
         let processedData = [];
 
         function processCSV() {
@@ -216,7 +215,7 @@
             Papa.parse(file, {
                 header: true,
                 skipEmptyLines: true,
-                delimiter: ',', // Asumiendo que es una coma, ajusta si es punto y coma (;)
+                delimiter: ',',
                 complete: function(results) {
                     const data = results.data;
                     const totalRowsProcessed = data.length;
@@ -226,14 +225,12 @@
                         return;
                     }
                     
-                    // Columnas de interés (ajusta los nombres si cambian en tu CSV)
                     const COL_COMPANY = 'Tipo cliente';
                     const COL_PATIENT_NAME = 'Nombre Paciente';
                     const COL_REQUEST_ID = 'N° Solicitud';
                     const COL_EXAMS = 'Examenes solicitados';
                     const COL_DOC = 'N° Documento';
 
-                    // 1. Agrupar por Compañía (Tipo cliente) -> Paciente -> Solicitud
                     const groupedData = {};
                     const uniqueExams = new Set();
                     
@@ -242,14 +239,12 @@
                         const patientKey = `${row[COL_PATIENT_NAME]}-${row[COL_DOC]}`.trim();
                         const requestId = row[COL_REQUEST_ID] ? row[COL_REQUEST_ID].trim() : 'SIN SOLICITUD';
                         
-                        // Limpiar y separar exámenes
                         const examsStr = row[COL_EXAMS] || '';
-                        // La expresión regular separa por //, /, o punto y coma y luego limpia espacios/caracteres especiales.
                         const exams = examsStr.split(/[\/\/|;]/) 
-                            .map(exam => exam.replace(/\[.*\]|\s*\d+\s*/g, '').trim()) // Quita códigos ([...]) y números (902210)
-                            .filter(exam => exam.length > 2); // Filtra cadenas muy cortas
+                            .map(exam => exam.replace(/\[.*\]|\s*\d+\s*/g, '').trim())
+                            .filter(exam => exam.length > 2);
 
-                        // 2. Llenar el Set de Exámenes Únicos para la Guía
+                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES
                         exams.forEach(exam => uniqueExams.add(exam));
                         
                         if (!groupedData[company]) {
@@ -270,8 +265,6 @@
                                 exams: exams
                             };
                         } else {
-                            // Si la solicitud existe (múltiples filas para una solicitud)
-                            // Fusionar las listas de exámenes para no perder ninguno
                             exams.forEach(exam => {
                                 if (!groupedData[company][patientKey].requests[requestId].exams.includes(exam)) {
                                     groupedData[company][patientKey].requests[requestId].exams.push(exam);
@@ -280,10 +273,10 @@
                         }
                     });
 
-                    // 3. Guardar la lista de exámenes únicos en localStorage para usarla en guia_examenes.html
+                    // *** PUNTO CLAVE: GUARDAR CSV Y DATA PROCESADA EN LOCALSTORAGE ***
                     localStorage.setItem('csv_unique_exams', JSON.stringify(Array.from(uniqueExams).sort()));
+                    localStorage.setItem('csv_processed_data', JSON.stringify(groupedData));
                     
-                    // 4. Renderizar los resultados
                     renderOutput(groupedData, totalRowsProcessed);
                 },
                 error: function(error) {
@@ -297,7 +290,7 @@
         function renderOutput(groupedData, totalRowsProcessed) {
             const outputList = document.getElementById('outputList');
             const statusElement = document.getElementById('status');
-            outputList.innerHTML = ''; // Limpiar resultados anteriores
+            outputList.innerHTML = '';
             
             const companyNames = Object.keys(groupedData);
             const sortedCompanies = companyNames.sort();
@@ -324,7 +317,6 @@
                 const patientList = document.createElement('ul');
                 patientList.className = 'patient-list';
 
-                // Ordenar pacientes alfabéticamente
                 const sortedPatientKeys = patientKeys.sort((a, b) => companyData[a].name.localeCompare(companyData[b].name));
                 
                 sortedPatientKeys.forEach(patientKey => {
@@ -380,19 +372,17 @@
             }
         }
         
-        // Cargar datos de localStorage si existen (para persistencia)
+        // Cargar datos de localStorage si existen al iniciar la app
         document.addEventListener('DOMContentLoaded', () => {
             const statusElement = document.getElementById('status');
             const storedData = localStorage.getItem('csv_processed_data');
             
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
-                // No tenemos el conteo exacto de filas procesadas, usamos un marcador
                 renderOutput(parsedData, 'anteriormente'); 
-                statusElement.textContent = 'Datos de la última ruta cargados.';
+                statusElement.textContent = 'Datos de la última ruta cargados. Procesa un nuevo CSV para actualizar.';
             }
         });
     </script>
-
 </body>
 </html>
