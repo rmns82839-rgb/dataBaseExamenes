@@ -101,7 +101,7 @@
             font-weight: bold;
         }
         
-        /* 🆕 Estilo para contener el nombre y la auditoría */
+        /* 🆕 Contenedor para Nombre y Auditoría */
         .name-and-audit-container {
             flex-grow: 1;
             min-width: 150px; 
@@ -174,7 +174,7 @@
         .tube-indicator.urine { background-color: #ffdead; border: 1px solid #8B4513;} 
         .tube-indicator.saliva { background-color: #f0f8ff; border: 1px solid #333; } 
         .tube-indicator.other { background-color: #333; }
-        .tube-indicator.No.Clasificado { background-color: #fff; border: 1px dashed #dc3545; }
+        .tube-indicator.No-Clasificado { background-color: #fff; border: 1px dashed #dc3545; } /* Clase corregida para JS */
 
         /* Estilos de la guía estática */
         .guide-exam-item {
@@ -341,14 +341,14 @@
     <script>
         // 1. CONFIGURACIÓN DEL ENDPOINT (¡VERIFICA ESTA URL!)
         const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; 
-        const EXAMS_UNIQUE_URL = 'https://motorizado-lab-backend.onrender.com/api/exams/all-unique'; // ⚠️ NUEVA URL DE LA LISTA MAESTRA
+        const EXAMS_UNIQUE_URL = 'https://motorizado-lab-backend.onrender.com/api/exams/all-unique'; 
         
         let classificationDataCache = {};
-        // examsArrayGlobal ahora contendrá objetos {exam_name, added_by, added_at}
+        // examsArrayGlobal contendrá objetos {exam_name, added_by, added_at} de la lista maestra
         let examsArrayGlobal = []; 
 
         const tubeOptions = {
-            'No Clasificado': 'No Clasificado',
+            'No Clasificado': 'No-Clasificado', // 💡 Clase CSS corregida para evitar el punto
             'Tubo Amarillo (Gel/Suero)': 'yellow',
             'Tubo Lila (EDTA)': 'lila',
             'Tubo Celeste (Citarto)': 'celeste',
@@ -384,6 +384,7 @@
         
         // Guarda la clasificación en MongoDB
         async function saveClassificationOnline(examKey, tubeValue, instructionsValue) {
+            const saveStatus = document.getElementById('saveStatus');
             try {
                 const response = await fetch(API_BASE_URL, {
                     method: 'POST',
@@ -401,17 +402,17 @@
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                // Actualizar caché y re-renderizar para que el examen se mueva de contenedor
+                // Actualizar caché
                 classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
                 
                 // Re-renderizamos para que el examen se mueva de contenedor si la clasificación cambió
                 renderGroupedExams(examsArrayGlobal, classificationDataCache); 
 
-                document.getElementById('saveStatus').textContent = `✅ Examen "${examKey}" guardado y movido a su contenedor a las ${new Date().toLocaleTimeString()}.`;
+                saveStatus.textContent = `✅ Examen "${examKey}" guardado y movido a su contenedor a las ${new Date().toLocaleTimeString('es-ES')}.`;
                 
             } catch (error) {
                 console.error("Error al guardar clasificación:", error);
-                document.getElementById('saveStatus').textContent = '❌ Error al guardar datos. Revisa la consola y la URL del servidor.';
+                saveStatus.textContent = '❌ Error al guardar datos. Revisa la consola y la URL del servidor.';
             }
         }
         
@@ -449,7 +450,7 @@
                 }
 
                 // Usamos el nombre del tubo para la clave del grupo
-                const tubeNameKey = Object.keys(tubeOptions).find(key => tubeOptions[key] === tubeOptions[tube]);
+                const tubeNameKey = tube; // Usamos el nombre completo del tubo como clave
                 
                 if (!acc[tubeNameKey]) {
                     acc[tubeNameKey] = { tubeName: tubeNameKey, items: [] };
@@ -480,11 +481,13 @@
                 const examsInGroup = group.items;
                 
                 if (examsInGroup.length > 0) {
-                    const tubeClass = tubeOptions[group.items[0].currentTube]; 
+                    const tubeClass = tubeOptions[tubeNameKey] || 'No-Clasificado'; 
                     const safeTubeId = tubeClass.replace(/[^a-zA-Z0-9]/g, '-');
                     
                     const groupDiv = document.createElement('div');
-                    groupDiv.className = 'tube-group csv-group active'; // Dejamos activos por defecto
+                    // 🔑 MEJORA DE UX: Solo activar por defecto el grupo 'No Clasificado' al cargar
+                    const isActive = tubeNameKey === 'No Clasificado' ? ' active' : '';
+                    groupDiv.className = `tube-group csv-group${isActive}`; 
                     groupDiv.id = `group-${safeTubeId}`;
                     
                     const header = document.createElement('div');
@@ -503,7 +506,8 @@
 
                         // Indicador de Color
                         const indicator = document.createElement('span');
-                        indicator.className = 'tube-indicator ' + tubeOptions[item.currentTube];
+                        const indicatorClass = tubeOptions[item.currentTube] || 'No-Clasificado';
+                        indicator.className = 'tube-indicator ' + indicatorClass;
                         itemDiv.appendChild(indicator);
                         
                         // 🆕 Contenedor de Nombre y Auditoría
@@ -519,11 +523,12 @@
                         // Datos de Auditoría
                         const auditInfo = document.createElement('div');
                         auditInfo.className = 'audit-info';
-                        const date = new Date(item.metadata.added_at).toLocaleDateString('es-ES', { 
-                            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                        });
+                        const dateOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                        const date = new Date(item.metadata.added_at).toLocaleDateString('es-ES', dateOptions);
+                        
+                        // 💡 MEJORA: Etiqueta más clara para la auditoría
                         auditInfo.innerHTML = `
-                            Cargado por: <strong>${item.metadata.added_by}</strong> el ${date}
+                            Última carga: <strong>${item.metadata.added_by}</strong> el ${date}
                         `;
                         nameAndAuditDiv.appendChild(auditInfo);
 
@@ -585,7 +590,7 @@
                 // 1. Consultar ambas fuentes de datos simultáneamente
                 const [classificationData, examsResponse] = await Promise.all([
                     getClassificationDataOnline(), // Trae las clasificaciones guardadas (Tubo/Instrucción)
-                    fetch(EXAMS_UNIQUE_URL)       // ⚠️ Trae la lista maestra de exámenes (Nombre/Added_by/Added_at)
+                    fetch(EXAMS_UNIQUE_URL)       // Trae la lista maestra de exámenes (Nombre/Added_by/Added_at)
                 ]);
                 
                 if (!examsResponse.ok) {
@@ -628,8 +633,18 @@
                 // Si la búsqueda está vacía, mostrar todo y colapsar los acordeones.
                 [...csvContainer.querySelectorAll('.csv-group'), ...guideContainer.querySelectorAll('.tube-group')].forEach(group => {
                     group.style.display = 'block';
-                    group.classList.remove('active');
-                    [...group.querySelectorAll('.csv-exam-item'), ...group.querySelectorAll('.guide-exam-item')].forEach(item => item.style.display = 'flex');
+                    // MEJORA UX: Mantener el grupo 'No Clasificado' abierto si no hay búsqueda
+                    const isNoClasificado = group.querySelector('.tube-header').textContent.includes('No Clasificado');
+                    if (group.classList.contains('csv-group') && isNoClasificado) {
+                        group.classList.add('active');
+                    } else {
+                         group.classList.remove('active');
+                    }
+                    
+                    [...group.querySelectorAll('.csv-exam-item'), ...group.querySelectorAll('.guide-exam-item')].forEach(item => {
+                        // Restaurar display flex para items de clasificación
+                        item.style.display = item.classList.contains('csv-exam-item') ? 'flex' : 'block'; 
+                    });
                 });
                 return;
             }
@@ -690,7 +705,7 @@
              // Cargar los exámenes del CSV (de MongoDB) y las clasificaciones (de MongoDB)
             loadAndRenderCSVExams(); 
             
-            // Colapsar guías estáticas al inicio
+            // Colapsar guías estáticas al inicio (el filtro ya lo hace si el campo está vacío, pero se mantiene para seguridad)
             document.getElementById('examensList').querySelectorAll('.tube-group').forEach(group => {
                  group.classList.remove('active');
             });
