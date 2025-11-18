@@ -245,7 +245,7 @@
         <p id="saveStatus" style="text-align: center; color: #1a4f78; font-weight: bold; margin-bottom: 20px; background-color: #e9f7ff; padding: 10px; border-radius: 5px;"></p>
 
         <div id="csvExamsContainer">
-            <h2>CLASIFICACIÓN DE EXÁMENES DE RUTA ACTUAL 📝</h2>
+            <h2>CLASIFICACIÓN DE EXÁMENES DE RUTA/PREVIOS 📝</h2>
             <div id="csvExamsList">
                 <p style="text-align: center; color: #555;">Cargando datos...</p>
             </div>
@@ -326,7 +326,6 @@
 
     <script>
         // 1. CONFIGURACIÓN DEL ENDPOINT (¡VERIFICA ESTA URL!)
-        // Debe ser la URL de tu servicio de Render
         const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; 
         
         let classificationDataCache = {};
@@ -350,7 +349,6 @@
 
         // 2. LÓGICA DE CONEXIÓN CON EL SERVIDOR RENDER/MONGODB
         
-        // Carga las clasificaciones guardadas en MongoDB
         async function getClassificationDataOnline() {
             try {
                 const response = await fetch(API_BASE_URL);
@@ -367,7 +365,6 @@
             }
         }
         
-        // Guarda la clasificación en MongoDB
         async function saveClassificationOnline(examKey, tubeValue, instructionsValue) {
             try {
                 const button = document.getElementById(`save-btn-${examKey}`);
@@ -391,7 +388,12 @@
                 
                 // Actualizar caché y re-renderizar para que el examen se mueva de contenedor
                 classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
-                renderGroupedExams(examsArrayGlobal, classificationDataCache);
+                renderGroupedExams(examsArrayGlobal, classificationDataCache); // Se re-renderiza con la lista global
+                
+                // Re-habilitar botón después de re-renderizar (si existe el nuevo botón en la nueva ubicación)
+                const newButton = document.getElementById(`save-btn-${examKey}`);
+                if (newButton) newButton.disabled = false;
+
 
                 document.getElementById('saveStatus').textContent = `✅ Examen "${examKey}" guardado y movido a su contenedor a las ${new Date().toLocaleTimeString()}.`;
                 
@@ -399,6 +401,8 @@
                 console.error("Error al guardar clasificación:", error);
                 document.getElementById('saveStatus').textContent = '❌ Error al guardar datos. Revisa la consola y la URL del servidor.';
             } finally {
+                 // Si falla, el botón original queda habilitado
+                 const button = document.getElementById(`save-btn-${examKey}`);
                  if (button) button.disabled = false;
             }
         }
@@ -419,7 +423,7 @@
             container.innerHTML = '';
             
             if (examsArray.length === 0) {
-                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ La última ruta CSV no contenía exámenes válidos.</p>`;
+                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ La lista de exámenes está vacía.</p>`;
                  return;
             }
             
@@ -430,6 +434,7 @@
                 const classification = classificationData[exam] || { tube: 'No Clasificado', instructions: '' };
                 const tubeKey = classification.tube || 'No Clasificado';
                 
+                // Asegura que la clave del tubo para agrupar sea el nombre completo (ej: 'Tubo Amarillo (Gel/Suero)')
                 const tubeNameKey = Object.keys(tubeOptions).find(key => tubeOptions[key] === tubeOptions[tubeKey]);
 
                 if (tubeNameKey && groupedExams[tubeNameKey]) {
@@ -441,6 +446,7 @@
                 }
             });
             
+            // Priorizar No Clasificado al inicio de la lista
             const sortedTubeKeys = Object.keys(groupedExams).sort((a, b) => {
                 if (a === 'No Clasificado') return -1; 
                 if (b === 'No Clasificado') return 1;
@@ -467,6 +473,9 @@
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'tube-content';
                     
+                    // Ordenar exámenes dentro de cada grupo alfabéticamente
+                    examsInGroup.sort((a, b) => a.examKey.localeCompare(b.examKey));
+
                     examsInGroup.forEach(examData => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'csv-exam-item';
@@ -478,7 +487,7 @@
                         
                         const nameSpan = document.createElement('span');
                         nameSpan.className = 'exam-name-display';
-                        nameSpan.textContent = examData.examKey;
+                        nameSpan.textContent = examData.examKey; // Aquí se muestra el código y nombre completo
                         itemDiv.appendChild(nameSpan);
 
                         const formDiv = document.createElement('div');
@@ -509,7 +518,11 @@
                         saveBtn.id = `save-btn-${examData.examKey}`;
                         saveBtn.className = 'save-button';
                         saveBtn.textContent = 'Guardar';
+                        // Llamar a saveClassificationTrigger al hacer click, blur o change en select/input
                         saveBtn.onclick = () => saveClassificationTrigger(examData.examKey);
+                        select.onchange = () => saveClassificationTrigger(examData.examKey);
+                        input.onblur = () => saveClassificationTrigger(examData.examKey);
+                        
                         formDiv.appendChild(saveBtn);
 
 
@@ -521,32 +534,46 @@
                     container.appendChild(groupDiv);
                 }
             });
-             document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes cargados. Clasificación leída de MongoDB y agrupada.`;
+            // El mensaje de estado final se establece en loadAndRenderCSVExams
         }
 
-        // Carga la lista de exámenes de la ruta desde localStorage y las clasificaciones de MongoDB
+        // 4. CARGA DE EXÁMENES (LÓGICA CORREGIDA)
         async function loadAndRenderCSVExams() {
             const container = document.getElementById('csvExamsList');
             
-            // *** PUNTO CLAVE: CARGAR CSV DE LOCALSTORAGE ***
-            const storedExams = localStorage.getItem('csv_unique_exams');
+            // 1. Cargar exámenes de la última ruta CSV (si existen)
+            const storedExamsJSON = localStorage.getItem('csv_unique_exams');
             
+            // 2. Siempre cargar las clasificaciones guardadas en MongoDB
             const classificationData = await getClassificationDataOnline();
             
             container.innerHTML = '';
             
-            if (!storedExams) {
-                container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ No hay exámenes de ruta guardados. Carga un archivo en la página principal.</p>`;
+            let examsToRender = [];
+            let statusMessage = '';
+            
+            if (storedExamsJSON) {
+                // Caso A: Hay data de CSV (Prioriza la lista de la ruta)
+                examsToRender = JSON.parse(storedExamsJSON);
+                statusMessage = `Lista de ${examsToRender.length} exámenes de la RUTA (CSV). Clasificación leída de MongoDB y agrupada.`;
+            } else if (Object.keys(classificationData).length > 0) {
+                // Caso B: No hay data de CSV, pero hay clasificaciones previas (Usa la lista de clasificados)
+                examsToRender = Object.keys(classificationData).sort();
+                statusMessage = `Lista de ${examsToRender.length} exámenes CLASIFICADOS previamente. Clasificación leída de MongoDB y agrupada.`;
+            } else {
+                // Caso C: No hay data en ningún lado
+                container.innerHTML = `<p style="color: #555; font-weight: bold; text-align: center;">ℹ️ No hay exámenes de ruta guardados ni clasificaciones previas. Clasifica un examen para guardarlo en la base de datos.</p>`;
+                document.getElementById('saveStatus').textContent = `Estado: Sin lista de exámenes cargada.`;
                 return;
             }
 
-            // Si hay storedExams, se cargan y se usan.
-            examsArrayGlobal = JSON.parse(storedExams);
-            
+            // Actualiza la variable global y renderiza
+            examsArrayGlobal = examsToRender;
             renderGroupedExams(examsArrayGlobal, classificationData);
+            document.getElementById('saveStatus').textContent = statusMessage;
         }
 
-        // 4. FUNCIONES ADICIONALES
+        // 5. FUNCIONES ADICIONALES (Se mantienen intactas)
         function toggleAccordion(header) {
             const group = header.closest('.tube-group');
             group.classList.toggle('active');
@@ -590,7 +617,7 @@
                 }
             });
 
-            // 2. Filtrar Acordeones del CSV (EXÁMENES DE RUTA)
+            // 2. Filtrar Acordeones del CSV (EXÁMENES DE RUTA/PREVIOS)
              csvContainer.querySelectorAll('.csv-group').forEach(group => {
                 let foundInGroup = false;
                 const items = [...group.querySelectorAll('.csv-exam-item')];
@@ -617,7 +644,7 @@
         }
 
 
-        // 5. INICIALIZACIÓN
+        // 6. INICIALIZACIÓN
         document.addEventListener('DOMContentLoaded', () => {
              // Cargar los exámenes del CSV (de localStorage) y las clasificaciones (de MongoDB)
             loadAndRenderCSVExams(); 
