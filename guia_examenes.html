@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motorizado Lab - Guía Rápida 🧪</title>
     <style>
-        /* Paleta: #333 (Negro Motorizado), #FFC107 (Amarillo de Seguridad), #F4F4F9 (Fondo claro) */
+        /* ... (ESTILOS CSS COMPLETOS) ... */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0; 
@@ -32,6 +32,25 @@
             border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
+        /* Botón de navegación */
+        .portal-actions {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .portal-actions button {
+            background-color: #555;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        .portal-actions button:hover {
+            background-color: #333;
+        }
+        
         .tube-group {
             margin-bottom: 10px;
             border: 1px solid #ddd;
@@ -161,6 +180,10 @@
 </head>
 <body>
     <div id="container">
+        <div class="portal-actions">
+            <button onclick="window.location.href='index.html'">Volver al Portal de Rutas</button>
+        </div>
+        
         <h1>Guía Rápida de Clasificación de Muestras</h1>
 
         <div id="csvExamsContainer" class="csv-exam-group">
@@ -279,7 +302,7 @@
             saveClassificationOnline(examKey, tubeValue, instructionsValue);
         }
         
-        // --- FUNCIÓN AUXILIAR DE RENDERING (Llamada por loadAndRenderCSVExams) ---
+        // --- FUNCIÓN AUXILIAR DE RENDERING ---
         function renderExams(examsArray, classificationData) {
             const container = document.getElementById('csvExamsList');
             container.innerHTML = ''; // Limpia la lista antes de renderizar
@@ -341,7 +364,7 @@
             });
         }
         
-        // 3. RENDERIZADO DE EXÁMENES DEL CSV (CON LÓGICA DE VISIBILIDAD)
+        // 3. RENDERIZADO DE EXÁMENES DEL CSV (CON LÓGICA DE VISIBILIDAD PERMANENTE)
         
         async function loadAndRenderCSVExams() {
             const container = document.getElementById('csvExamsList');
@@ -355,8 +378,9 @@
             
             let examsArray = [];
             let messageStatus = '';
+            let isCsvLoaded = storedExamsJSON && JSON.parse(storedExamsJSON).length > 0;
 
-            if (storedExamsJSON && JSON.parse(storedExamsJSON).length > 0) {
+            if (isCsvLoaded) {
                 // Opción 1: Hay un CSV cargado. Usamos esa lista para clasificar.
                 examsArray = JSON.parse(storedExamsJSON);
                 messageStatus = `Lista de ${examsArray.length} exámenes de la ÚLTIMA RUTA cargados. Clasificación leída de MongoDB.`;
