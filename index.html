@@ -52,7 +52,7 @@
             margin-bottom: 30px;
         }
         /* Estilo general de los botones en esta sección */
-        .action-buttons button, .portal-actions a button {
+        .action-buttons button, .portal-actions button {
             background-color: #333; /* Fondo oscuro */
             color: #FFC107; /* Texto amarillo */
             padding: 12px 25px; 
@@ -67,14 +67,14 @@
             transition: background-color 0.2s ease, transform 0.1s;
             margin-top: 10px; /* Separación entre botones */
         }
-        .action-buttons button:hover, .portal-actions a button:hover {
+        .action-buttons button:hover, .portal-actions button:hover {
             background-color: #555;
             transform: translateY(-2px);
         }
-        .action-buttons button:active, .portal-actions a button:active {
+        .action-buttons button:active, .portal-actions button:active {
             transform: translateY(0);
         }
-        .portal-actions a button {
+        .portal-actions button {
              background-color: #007bff; /* Color azul para el portal */
              color: white;
              border: 1px solid #0056b3;
@@ -82,7 +82,7 @@
              padding: 10px 25px;
              margin-bottom: 20px;
         }
-        .portal-actions a button:hover {
+        .portal-actions button:hover {
             background-color: #0056b3;
         }
         #status {
@@ -158,12 +158,12 @@
             h1 {
                 font-size: 2.5em;
             }
-            .action-buttons button, .portal-actions a button {
+            .action-buttons button, .portal-actions button {
                 width: auto;
                 min-width: 350px;
                 font-size: 1.1em;
             }
-            .portal-actions a button {
+            .portal-actions button {
                 font-size: 1em;
             }
         }
@@ -176,9 +176,9 @@
         <p>Sistema de Gestión de Rutas y Carga CSV</p>
         
         <div class="portal-actions">
-            <a href="https://rmns82839-rgb.github.io/portal-de-toma-de-muestras/">
-                <button>VOLVER AL PORTAL PRINCIPAL</button>
-            </a>
+            <button onclick="window.location.href='https://rmns82839-rgb.github.io/portal-de-toma-de-muestras/'">
+                VOLVER AL PORTAL PRINCIPAL
+            </button>
         </div>
         <input type="file" id="csvFile" accept=".csv" required>
 
