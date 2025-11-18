@@ -77,7 +77,7 @@
             background-color: #fcfcfc;
         }
         .tube-group.active > .tube-content {
-            max-height: 5000px; 
+            max-height: 5000px; /* Suficientemente grande */
             padding: 10px;
         }
         
@@ -97,20 +97,11 @@
         .csv-exam-item:last-child {
             border-bottom: none;
         }
-
-        /* ✅ FIX 1: Contenedor para el indicador y el nombre del examen (Mejora móvil) */
-        .exam-header-wrapper {
-            display: flex;
-            align-items: center;
-            flex-basis: 35%; 
-            min-width: 150px;
-            margin-right: 10px;
-            padding-right: 5px; 
-        }
-
         .exam-name-display {
             font-weight: bold;
-            flex-grow: 1; 
+            flex-basis: 30%; 
+            min-width: 150px;
+            margin-right: 10px;
         }
         .tube-indicator {
             width: 15px;
@@ -134,11 +125,11 @@
             font-size: 0.85em;
         }
         .classification-form select {
-            flex-grow: 0.8;
+            flex-grow: 0.5;
             min-width: 120px;
         }
         .classification-form input[type="text"] {
-            flex-grow: 2;
+            flex-grow: 1;
         }
         .save-button {
             background-color: #28a745; 
@@ -174,6 +165,23 @@
         .tube-indicator.saliva { background-color: #f0f8ff; border: 1px solid #333; } 
         .tube-indicator.other { background-color: #333; }
         .tube-indicator.No.Clasificado { background-color: #fff; border: 1px dashed #dc3545; }
+
+        /* Estilos de la guía estática */
+        .guide-exam-item {
+             padding: 8px;
+             border-bottom: 1px dotted #ccc;
+             font-weight: 500;
+             font-size: 0.95em;
+        }
+        .guide-exam-item:last-child {
+             border-bottom: none;
+        }
+        .guide-note {
+             font-style: italic;
+             font-size: 0.85em;
+             color: #666;
+             margin-left: 10px;
+        }
         
         /* Botón de Regreso */
         .back-button {
@@ -194,39 +202,31 @@
             background-color: #555;
         }
 
-        /* ----------------------------------------------------- */
-        /* --- CORRECCIÓN CLAVE: RESPONSIVIDAD MÓVIL (Móvil) --- */
-        /* ----------------------------------------------------- */
+
+        /* Responsive */
         @media (max-width: 600px) {
             .csv-exam-item {
-                flex-direction: column; 
+                flex-direction: column;
                 align-items: flex-start;
-                gap: 5px;
+                gap: 10px;
             }
-            /* ✅ FIX 1: Permite que el nombre del examen y el código se vean completos */
-            .exam-header-wrapper {
-                 flex-basis: 100%;
-                 min-width: 0;
-                 margin-right: 0;
+            .exam-name-display {
+                flex-basis: 100%;
+                margin-right: 0;
+                display: flex;
+                align-items: center;
             }
-
             .classification-form {
                 flex-basis: 100%;
                 flex-wrap: nowrap;
-                display: flex;
-                flex-direction: column; 
-                gap: 8px;
             }
             .classification-form select, 
-            .classification-form input[type="text"],
-            .save-button {
-                width: 100%; 
-                flex-grow: 1;
-                margin: 0; 
-                box-sizing: border-box;
-            }
             .classification-form input[type="text"] {
-                 min-height: 40px; 
+                width: auto;
+                flex-grow: 1;
+            }
+            .save-button {
+                 padding: 8px 15px;
             }
         }
     </style>
@@ -245,7 +245,7 @@
         <p id="saveStatus" style="text-align: center; color: #1a4f78; font-weight: bold; margin-bottom: 20px; background-color: #e9f7ff; padding: 10px; border-radius: 5px;"></p>
 
         <div id="csvExamsContainer">
-            <h2>CLASIFICACIÓN DE EXÁMENES DE RUTA/PREVIOS 📝</h2>
+            <h2>CLASIFICACIÓN DE EXÁMENES DE RUTA ACTUAL 📝</h2>
             <div id="csvExamsList">
                 <p style="text-align: center; color: #555;">Cargando datos...</p>
             </div>
@@ -326,6 +326,7 @@
 
     <script>
         // 1. CONFIGURACIÓN DEL ENDPOINT (¡VERIFICA ESTA URL!)
+        // Debe ser la URL de tu servicio de Render
         const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; 
         
         let classificationDataCache = {};
@@ -352,10 +353,7 @@
         // Carga las clasificaciones guardadas en MongoDB
         async function getClassificationDataOnline() {
             try {
-                // ✅ FIX 2: Agregar Cache Buster para asegurar datos frescos
-                const timestamp = new Date().getTime();
-                const response = await fetch(`${API_BASE_URL}?t=${timestamp}`); 
-                
+                const response = await fetch(API_BASE_URL);
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
@@ -364,20 +362,17 @@
                 return classificationData;
             } catch (error) {
                 console.error("Error al cargar clasificación de MongoDB:", error);
-                document.getElementById('saveStatus').textContent = '❌ Error al cargar datos. ¿Está el servidor Render activo o la URL es incorrecta?';
+                document.getElementById('saveStatus').textContent = '❌ Error al cargar datos. ¿Está el servidor Render activo?';
                 return {};
             }
         }
         
         // Guarda la clasificación en MongoDB
         async function saveClassificationOnline(examKey, tubeValue, instructionsValue) {
-            const button = document.getElementById(`save-btn-${examKey}`);
-            if (button) {
-                button.disabled = true;
-                button.textContent = 'Guardando...';
-            }
-            
             try {
+                const button = document.getElementById(`save-btn-${examKey}`);
+                if (button) button.disabled = true;
+
                 const response = await fetch(API_BASE_URL, {
                     method: 'POST',
                     headers: {
@@ -398,43 +393,13 @@
                 classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
                 renderGroupedExams(examsArrayGlobal, classificationDataCache);
 
-                document.getElementById('saveStatus').textContent = `✅ Examen "${examKey}" guardado y sincronizado a las ${new Date().toLocaleTimeString()}.`;
+                document.getElementById('saveStatus').textContent = `✅ Examen "${examKey}" guardado y movido a su contenedor a las ${new Date().toLocaleTimeString()}.`;
                 
             } catch (error) {
                 console.error("Error al guardar clasificación:", error);
-                document.getElementById('saveStatus').textContent = `❌ Error al guardar datos: ${error.message}. ¡No se ha sincronizado en línea!`;
+                document.getElementById('saveStatus').textContent = '❌ Error al guardar datos. Revisa la consola y la URL del servidor.';
             } finally {
-                // Re-habilitar botón después del re-renderizado
-                const newButton = document.getElementById(`save-btn-${examKey}`);
-                if (newButton) {
-                    newButton.disabled = false;
-                    newButton.textContent = 'Guardar';
-                }
-            }
-        }
-        
-        function updateLocalCacheAndIndicator(examKey) {
-            const select = document.getElementById(`select-${examKey}`);
-            const input = document.getElementById(`input-${examKey}`);
-            const indicator = document.querySelector(`.csv-exam-item[data-exam="${examKey}"] .tube-indicator`);
-            const button = document.getElementById(`save-btn-${examKey}`);
-
-            if (select && input && indicator) {
-                const tubeValue = select.value;
-                const instructionsValue = input.value;
-
-                // 1. Actualizar caché local (inmediato)
-                classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
-                
-                // 2. Actualizar indicador visualmente (inmediato)
-                const tubeClass = tubeOptions[tubeValue];
-                Object.values(tubeOptions).forEach(cls => indicator.classList.remove(cls));
-                indicator.classList.add(tubeClass);
-
-                // 3. Habilitar el botón de Guardar (para forzar la sincronización)
-                if (button) button.disabled = false;
-
-                document.getElementById('saveStatus').textContent = `Clasificación de "${examKey}" cambiada. Presiona "Guardar" para sincronizar en línea.`;
+                 if (button) button.disabled = false;
             }
         }
         
@@ -446,15 +411,15 @@
                  saveClassificationOnline(examKey, select.value, input.value);
             }
         }
-        
-        // 3. RENDERIZADO DE EXÁMENES DEL CSV AGRUPADOS POR TUBO
 
+        // 3. RENDERIZADO DE EXÁMENES DEL CSV AGRUPADOS POR TUBO
+        
         function renderGroupedExams(examsArray, classificationData) {
             const container = document.getElementById('csvExamsList');
             container.innerHTML = '';
             
             if (examsArray.length === 0) {
-                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ No hay exámenes para mostrar. Carga un CSV o guarda tu primera clasificación.</p>`;
+                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ La última ruta CSV no contenía exámenes válidos.</p>`;
                  return;
             }
             
@@ -482,13 +447,10 @@
                 return a.localeCompare(b);
             });
             
-            let totalExamsCount = 0;
-
             sortedTubeKeys.forEach(tubeName => {
                 const examsInGroup = groupedExams[tubeName];
                 
                 if (examsInGroup.length > 0) {
-                    totalExamsCount += examsInGroup.length;
                     const tubeClass = tubeOptions[tubeName]; 
                     const safeTubeId = tubeClass.replace(/[^a-zA-Z0-9]/g, '-');
                     
@@ -505,8 +467,6 @@
                     const contentDiv = document.createElement('div');
                     contentDiv.className = 'tube-content';
                     
-                    examsInGroup.sort((a, b) => a.examKey.localeCompare(b.examKey));
-
                     examsInGroup.forEach(examData => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'csv-exam-item';
@@ -514,26 +474,18 @@
 
                         const indicator = document.createElement('span');
                         indicator.className = 'tube-indicator ' + tubeOptions[examData.tube];
+                        itemDiv.appendChild(indicator);
                         
                         const nameSpan = document.createElement('span');
                         nameSpan.className = 'exam-name-display';
-                        nameSpan.textContent = examData.examKey; 
-                        
-                        // ✅ FIX 1: Envolver indicador y nombre para mejor control móvil
-                        const nameWrapper = document.createElement('div');
-                        nameWrapper.className = 'exam-header-wrapper';
-                        nameWrapper.appendChild(indicator);
-                        nameWrapper.appendChild(nameSpan);
-                        itemDiv.appendChild(nameWrapper);
-
+                        nameSpan.textContent = examData.examKey;
+                        itemDiv.appendChild(nameSpan);
 
                         const formDiv = document.createElement('div');
                         formDiv.className = 'classification-form';
 
-                        // Select de Tubo
                         const select = document.createElement('select');
                         select.id = `select-${examData.examKey}`;
-                        select.onchange = () => updateLocalCacheAndIndicator(examData.examKey);
                         
                         Object.keys(tubeOptions).forEach(optionName => {
                             const option = document.createElement('option');
@@ -546,25 +498,18 @@
                         });
                         formDiv.appendChild(select);
 
-                        // Input de Instrucciones
                         const input = document.createElement('input');
                         input.type = 'text';
                         input.id = `input-${examData.examKey}`;
                         input.placeholder = 'Instrucción (e.g., Ayuno, Hielo)';
                         input.value = examData.instructions;
-                        input.onblur = () => updateLocalCacheAndIndicator(examData.examKey); 
                         formDiv.appendChild(input);
                         
-                        // Botón de Guardar
                         const saveBtn = document.createElement('button');
                         saveBtn.id = `save-btn-${examData.examKey}`;
                         saveBtn.className = 'save-button';
                         saveBtn.textContent = 'Guardar';
                         saveBtn.onclick = () => saveClassificationTrigger(examData.examKey);
-                        
-                        // Si el examen está clasificado, deshabilitar el botón inicialmente hasta que haya un cambio local
-                        saveBtn.disabled = (examData.tube !== 'No Clasificado'); 
-                        
                         formDiv.appendChild(saveBtn);
 
 
@@ -576,46 +521,32 @@
                     container.appendChild(groupDiv);
                 }
             });
-             document.getElementById('saveStatus').textContent = `Lista de ${totalExamsCount} exámenes cargados. Clasificación leída de MongoDB y agrupada.`;
-            filterExams(); 
+             document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes cargados. Clasificación leída de MongoDB y agrupada.`;
         }
-        
-        // 4. LÓGICA DE CARGA DE EXÁMENES (FIX CRÍTICO para sincronización en incógnito)
 
+        // Carga la lista de exámenes de la ruta desde localStorage y las clasificaciones de MongoDB
         async function loadAndRenderCSVExams() {
             const container = document.getElementById('csvExamsList');
             
-            // 1. INTENTAR CARGAR CLASIFICACIONES ONLINE (DESDE RENDER)
+            // *** PUNTO CLAVE: CARGAR CSV DE LOCALSTORAGE ***
+            const storedExams = localStorage.getItem('csv_unique_exams');
+            
             const classificationData = await getClassificationDataOnline();
             
-            const storedExamsJSON = localStorage.getItem('csv_unique_exams');
+            container.innerHTML = '';
             
-            let examsToRender = [];
-            
-            if (storedExamsJSON) {
-                // A) MODO NORMAL: Usar la lista de la ruta del CSV (LocalStorage)
-                examsToRender = JSON.parse(storedExamsJSON);
-                
-                document.getElementById('csvExamsContainer').querySelector('h2').textContent = 'CLASIFICACIÓN DE EXÁMENES DE RUTA ACTUAL 📝';
-                
-            } else if (Object.keys(classificationData).length > 0) {
-                // B) MODO INCÓGNITO/SIN CSV: Usar las claves de la data leída de MongoDB
-                // ✅ FIX 3: Esto se ejecuta si LocalStorage está vacío, mostrando la data guardada.
-                examsToRender = Object.keys(classificationData).sort();
-                
-                document.getElementById('csvExamsContainer').querySelector('h2').textContent = 'CLASIFICACIÓN DE EXÁMENES (BASE DE DATOS EN LÍNEA) ☁️';
-            } else {
-                // C) NO HAY NADA: Ni CSV local ni clasificaciones en la BD.
-                container.innerHTML = `<p style="color: #555; font-weight: bold; text-align: center;">ℹ️ No hay exámenes de ruta guardados ni clasificaciones previas. Clasifica un examen para guardarlo en la base de datos.</p>`;
-                document.getElementById('saveStatus').textContent = `Estado: Sin lista de exámenes cargada.`;
+            if (!storedExams) {
+                container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ No hay exámenes de ruta guardados. Carga un archivo en la página principal.</p>`;
                 return;
             }
 
-            examsArrayGlobal = examsToRender;
+            // Si hay storedExams, se cargan y se usan.
+            examsArrayGlobal = JSON.parse(storedExams);
+            
             renderGroupedExams(examsArrayGlobal, classificationData);
         }
 
-        // 5. FUNCIONES ADICIONALES (Se mantienen intactas)
+        // 4. FUNCIONES ADICIONALES
         function toggleAccordion(header) {
             const group = header.closest('.tube-group');
             group.classList.toggle('active');
@@ -627,11 +558,11 @@
             const guideContainer = document.getElementById('examensList');
             
             if (searchTerm.length === 0) {
+                // Si la búsqueda está vacía, mostrar todo y colapsar los acordeones.
                 [...csvContainer.querySelectorAll('.csv-group'), ...guideContainer.querySelectorAll('.tube-group')].forEach(group => {
                     group.style.display = 'block';
                     group.classList.remove('active');
-                    [...group.querySelectorAll('.csv-exam-item')].forEach(item => item.style.display = 'flex');
-                    [...group.querySelectorAll('.guide-exam-item')].forEach(item => item.style.display = 'block');
+                    [...group.querySelectorAll('.csv-exam-item'), ...group.querySelectorAll('.guide-exam-item')].forEach(item => item.style.display = 'flex');
                 });
                 return;
             }
@@ -659,15 +590,14 @@
                 }
             });
 
-            // 2. Filtrar Acordeones del CSV (EXÁMENES DE RUTA/PREVIOS)
+            // 2. Filtrar Acordeones del CSV (EXÁMENES DE RUTA)
              csvContainer.querySelectorAll('.csv-group').forEach(group => {
                 let foundInGroup = false;
                 const items = [...group.querySelectorAll('.csv-exam-item')];
 
                 items.forEach(item => {
-                    const name = item.dataset.exam.toLowerCase(); 
-                    const instructionsInput = item.querySelector('input[type="text"]');
-                    const instructions = instructionsInput ? instructionsInput.value.toLowerCase() : '';
+                    const name = item.querySelector('.exam-name-display').textContent.toLowerCase();
+                    const instructions = item.querySelector('input[type="text"]').value.toLowerCase();
                     
                     if (name.includes(searchTerm) || instructions.includes(searchTerm)) {
                         item.style.display = 'flex';
@@ -687,7 +617,7 @@
         }
 
 
-        // 6. INICIALIZACIÓN
+        // 5. INICIALIZACIÓN
         document.addEventListener('DOMContentLoaded', () => {
              // Cargar los exámenes del CSV (de localStorage) y las clasificaciones (de MongoDB)
             loadAndRenderCSVExams(); 
