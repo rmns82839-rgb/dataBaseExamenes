@@ -22,6 +22,7 @@ app.use(express.json());
 
 let db;
 let examCollection;
+let uniqueExamsCollection; // 👈 NUEVA VARIABLE PARA LA LISTA MAESTRA
 
 // Conexión a MongoDB
 async function connectToMongo() {
@@ -34,8 +35,10 @@ async function connectToMongo() {
         console.log("Conectado exitosamente a MongoDB Atlas");
         // 'motorizadoDB' será el nombre de tu base de datos
         db = client.db('motorizadoDB'); 
-        // 'exam_classification' será tu colección
+        // 'exam_classification' será tu colección existente
         examCollection = db.collection('exam_classification'); 
+        // 'unique_exams' es la nueva colección para la lista maestra con auditoría
+        uniqueExamsCollection = db.collection('unique_exams'); // 👈 ASIGNACIÓN DE LA NUEVA COLECCIÓN
     } catch (e) {
         console.error("Error de conexión a MongoDB:", e);
     }
@@ -92,6 +95,70 @@ app.post('/api/classification', async (req, res) => {
         res.status(500).json({ message: "Error interno del servidor." });
     }
 });
+
+// 3. 🆕 ENDPOINT NUEVO: GUARDAR LISTA ÚNICA CON AUDITORÍA
+app.post('/api/exams/save-unique', async (req, res) => {
+    try {
+        if (!uniqueExamsCollection) {
+            return res.status(503).json({ message: "Servicio no disponible: Base de datos no conectada." });
+        }
+        
+        const { exams, added_by } = req.body; 
+
+        if (!Array.isArray(exams) || exams.length === 0 || !added_by) {
+            return res.status(400).json({ message: "Se espera un array de exámenes y el identificador de 'added_by'." });
+        }
+        
+        const timestamp = new Date(); 
+        
+        // Crear operaciones de 'bulkWrite'
+        const bulkOps = exams.map(exam_name => ({
+            updateOne: {
+                filter: { exam_name: exam_name },
+                update: { 
+                    // $setOnInsert se usa para escribir estos campos SOLO si es un NUEVO documento
+                    $setOnInsert: { 
+                        exam_name: exam_name,
+                        added_by: added_by,      // 👈 QUIÉN LO AÑADIÓ
+                        added_at: timestamp      // 👈 CUÁNDO LO AÑADIÓ
+                    } 
+                }, 
+                upsert: true
+            }
+        }));
+
+        const result = await uniqueExamsCollection.bulkWrite(bulkOps);
+
+        res.status(200).json({ 
+            message: `Procesados ${exams.length} exámenes. ${result.upsertedCount} nuevos insertados.`, 
+            result
+        });
+    } catch (e) {
+        console.error("Error al guardar lista de exámenes únicos:", e);
+        res.status(500).json({ message: "Error interno del servidor." });
+    }
+});
+
+// 4. 🆕 ENDPOINT NUEVO: LEER TODOS LOS EXÁMENES ÚNICOS REGISTRADOS CON AUDITORÍA
+app.get('/api/exams/all-unique', async (req, res) => {
+    try {
+        if (!uniqueExamsCollection) {
+            return res.status(503).json({ message: "Servicio no disponible: Base de datos no conectada." });
+        }
+        
+        const exams = await uniqueExamsCollection.find({})
+                                                // Proyectar todos los campos de auditoría
+                                                .project({ _id: 0, exam_name: 1, added_by: 1, added_at: 1 }) 
+                                                .sort({ exam_name: 1 })
+                                                .toArray();
+        
+        res.json(exams); // Devolvemos un array de objetos con metadata
+    } catch (e) {
+        console.error("Error al obtener lista de exámenes únicos:", e);
+        res.status(500).json({ message: "Error interno del servidor." });
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`Servidor Express corriendo en el puerto ${port}`);
