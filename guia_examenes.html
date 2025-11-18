@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motorizado Lab - Guía Rápida 🧪</title>
     <style>
-        /* Paleta: #333 (Negro Motorizado), #FFC107 (Amarillo de Seguridad), #F4F4F9 (Fondo claro) */
+        /* --- ESTILOS GENERALES Y PALETA --- */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0; 
@@ -21,7 +21,7 @@
             border-radius: 10px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             box-sizing: border-box;
-            margin-top: 60px;
+            margin-top: 20px;
         }
         h1 {
             color: #333;
@@ -32,16 +32,20 @@
             border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
+        
+        /* --- ESTILOS DE ACORDEÓN / CONTENEDORES --- */
         .tube-group {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
             overflow: hidden;
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .tube-header {
             background-color: #333;
             color: white;
-            padding: 10px 15px;
+            padding: 12px 15px;
             margin: 0;
             cursor: pointer;
             border-left: 5px solid #FFC107;
@@ -49,6 +53,12 @@
             justify-content: space-between;
             align-items: center;
             font-size: 1.1em;
+            font-weight: bold;
+        }
+        .tube-header span:last-child {
+            font-size: 0.8em;
+            font-weight: normal;
+            color: #ccc;
         }
         .tube-header::after {
             content: '+';
@@ -58,67 +68,40 @@
         .tube-group.active > .tube-header::after {
             content: '−';
         }
-        .exam-list {
-            list-style: none;
-            padding: 10px;
+        .tube-content {
+            padding: 0;
             margin: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 10px;
-            background-color: #fff;
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-out, padding 0.3s;
+            transition: max-height 0.4s ease-in-out, padding 0.4s;
+            background-color: #fcfcfc;
         }
-        .tube-group.active > .exam-list {
-            max-height: 1000px; 
+        .tube-group.active > .tube-content {
+            max-height: 5000px; /* Suficientemente grande */
             padding: 10px;
         }
-        .exam-item {
-            background-color: #f9f9f9;
-            padding: 8px;
-            border-radius: 5px;
-            border-left: 4px solid #333; 
-            font-size: 0.9em;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* --- ESTILOS PARA LA SECCIÓN DE EXÁMENES DEL CSV (CLAVE) --- */
-        .csv-exam-group {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 2px solid #FFC107;
-            background-color: #fffacd; 
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+        
+        /* --- ESTILOS DE ITEM DE EXAMEN (CSV) --- */
         .csv-exam-item {
             display: flex;
+            flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
             align-items: center;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed #ccc;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background-color: #ffffff;
+            transition: background-color 0.2s;
+        }
+        .csv-exam-item:hover {
+             background-color: #fffacd;
         }
         .csv-exam-item:last-child {
             border-bottom: none;
         }
-        .exam-name {
+        .exam-name-display {
             font-weight: bold;
-            flex-grow: 1;
+            flex-basis: 30%; /* Ocupa 30% del espacio */
+            min-width: 150px;
             margin-right: 10px;
-        }
-        .classification-form select, 
-        .classification-form input[type="text"] {
-            padding: 5px;
-            margin-left: 5px;
-            border: 1px solid #333;
-            border-radius: 3px;
-            font-size: 0.8em;
-            width: 130px; 
-            box-sizing: border-box;
         }
         .tube-indicator {
             width: 15px;
@@ -128,33 +111,94 @@
             border: 1px solid #333;
             flex-shrink: 0;
         }
-        /* Clases de color (deben coincidir con tubeOptions en JS) */
+        .classification-form {
+            flex-basis: 60%; /* Ocupa 60% del espacio */
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .classification-form select, 
+        .classification-form input[type="text"] {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+        .classification-form select {
+            flex-grow: 0.5;
+            min-width: 120px;
+        }
+        .classification-form input[type="text"] {
+            flex-grow: 1;
+        }
+        .save-button {
+            background-color: #28a745; 
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+        .save-button:hover {
+            background-color: #218838;
+        }
+        .save-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* --- ESTILOS DE COLOR DE TUBOS --- */
         .tube-indicator.yellow { background-color: #FFC107; }
-        .tube-indicator.lila { background-color: #8e2de2; } 
-        .tube-indicator.celeste { background-color: #00b0ff; }
-        .tube-indicator.red { background-color: #dc3545; }
-        .tube-indicator.green { background-color: #28a745; }
-        .tube-indicator.gray { background-color: #6c757d; }
-        .tube-indicator.urine, .tube-indicator.fecal, .tube-indicator.saliva { background-color: #8B4513; } 
+        .tube-indicator.lila { background-color: #8e2de2; } /* Lila */
+        .tube-indicator.celeste { background-color: #00b0ff; } /* Azul Celeste (Citarto) */
+        .tube-indicator.red { background-color: #dc3545; } /* Rojo (Sin aditivo) */
+        .tube-indicator.green { background-color: #28a745; } /* Verde (Heparina) */
+        .tube-indicator.gray { background-color: #6c757d; } /* Gris (Fluoruro/Oxalato) */
+        .tube-indicator.azul-rey { background-color: #4169e1; } /* Azul Rey (Trace Elements) */
+        .tube-indicator.perlado { background-color: #c790b5; } /* Tubo Perlado (PPT) */
+        .tube-indicator.fecal { background-color: #8B4513; } /* Heces */
+        .tube-indicator.urine { background-color: #ffdead; border: 1px solid #8B4513;} /* Orina */
+        .tube-indicator.saliva { background-color: #f0f8ff; border: 1px solid #333; } /* Saliva */
         .tube-indicator.other { background-color: #333; }
         .tube-indicator.No.Clasificado { background-color: #fff; border: 1px dashed #dc3545; }
-        
+
+        /* Estilos de la guía estática */
+        .guide-exam-item {
+             padding: 8px;
+             border-bottom: 1px dotted #ccc;
+        }
+        .guide-exam-item:last-child {
+             border-bottom: none;
+        }
+
+        /* Responsive */
         @media (max-width: 600px) {
             .csv-exam-item {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 10px;
             }
-            .exam-name {
-                margin-bottom: 5px;
+            .exam-name-display {
+                flex-basis: 100%;
+                margin-right: 0;
+                display: flex;
+                align-items: center;
             }
             .classification-form {
-                width: 100%;
-                margin-top: 5px;
+                flex-basis: 100%;
+                flex-wrap: nowrap;
             }
             .classification-form select, 
             .classification-form input[type="text"] {
-                width: 48%; 
-                margin: 5px 1% 5px 0;
+                width: auto;
+                flex-grow: 1;
+            }
+            .save-button {
+                 padding: 8px 15px;
             }
         }
     </style>
@@ -163,39 +207,43 @@
     <div id="container">
         <h1>Guía Rápida de Clasificación de Muestras</h1>
 
-        <div id="csvExamsContainer" class="csv-exam-group">
-            <h2>CLASIFICACIÓN DE EXÁMENES DE RUTA ACTUAL 📝 (MongoDB/Render)</h2>
-            <p>Clasifica cada examen. La información se guarda en la base de datos y es compartida.</p>
-            <div id="csvExamsList">
-                <p style="text-align: center;">Cargando datos...</p>
-            </div>
-            <p id="saveStatus" style="text-align: center; color: #333; font-weight: bold; margin-top: 15px;"></p>
-        </div>
-        <input type="text" id="searchInput" placeholder="Buscar examen o tubo..." onkeyup="filterExams()" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px;">
+        <input type="text" id="searchInput" placeholder="Buscar por Código o Nombre del Examen..." onkeyup="filterExams()" style="width: 100%; padding: 12px; margin-bottom: 25px; border: 2px solid #333; border-radius: 5px; font-size: 1.1em;">
         
+        <p id="saveStatus" style="text-align: center; color: #1a4f78; font-weight: bold; margin-bottom: 20px; background-color: #e9f7ff; padding: 10px; border-radius: 5px;"></p>
+
+        <div id="csvExamsContainer">
+            <h2>CLASIFICACIÓN DE EXÁMENES DE RUTA ACTUAL 📝</h2>
+            <div id="csvExamsList">
+                <p style="text-align: center; color: #555;">Cargando datos...</p>
+            </div>
+        </div>
+        
+        <hr style="margin: 30px 0;">
+
         <div id="examensList">
+            <h2>GUÍA RÁPIDA DE REFERENCIA DE TUBOS</h2>
             <div class="tube-group" id="yellow-group">
                 <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Amarillo (Suero/Gel)</h2>
-                <ul class="exam-list">
-                    <li class="exam-item">GLUCOSA</li>
-                    <li class="exam-item">PERFIL LIPÍDICO</li>
-                    <li class="exam-item">CREATININA</li>
-                </ul>
+                <div class="tube-content">
+                    <div class="guide-exam-item">GLUCOSA (No en ayunas)</div>
+                    <div class="guide-exam-item">PERFIL LIPÍDICO</div>
+                    <div class="guide-exam-item">CREATININA</div>
+                </div>
             </div>
             <div class="tube-group" id="lila-group">
                 <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Lila (EDTA - Hematología)</h2>
-                <ul class="exam-list">
-                    <li class="exam-item">HEMOGRAMA</li>
-                    <li class="exam-item">HEMOGLOBINA GLICOSILADA</li>
-                    <li class="exam-item">VSG</li>
-                </ul>
+                <div class="tube-content">
+                    <div class="guide-exam-item">HEMOGRAMA</div>
+                    <div class="guide-exam-item">HEMOGLOBINA GLICOSILADA</div>
+                    <div class="guide-exam-item">VSG</div>
+                </div>
             </div>
-            <div class="tube-group" id="celeste-group">
+             <div class="tube-group" id="celeste-guide-group">
                 <h2 class="tube-header" onclick="toggleAccordion(this)">Tubo Celeste (Citarto - Coagulación)</h2>
-                <ul class="exam-list">
-                    <li class="exam-item">TP (Tiempo de Protrombina)</li>
-                    <li class="exam-item">TPT (Tiempo de Tromboplastina Parcial)</li>
-                </ul>
+                <div class="tube-content">
+                    <div class="guide-exam-item">TP (Tiempo de Protrombina)</div>
+                    <div class="guide-exam-item">TPT (Tiempo de Tromboplastina Parcial)</div>
+                </div>
             </div>
         </div>
 
@@ -203,22 +251,24 @@
 
     <script>
         // 1. CONFIGURACIÓN DEL ENDPOINT (¡REEMPLAZA ESTA URL!)
-        // DEBES REEMPLAZAR 'TU_URL_PUBLICA_DE_RENDER' con la URL real de tu servicio desplegado.
-        const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com'; 
+        const API_BASE_URL = 'https://motorizado-lab-backend.onrender.com/api/classification'; // Reemplaza con tu URL real
         
         let classificationDataCache = {};
-        
-        // Mapeo de opciones de tubos
+        let examsArrayGlobal = []; // Para almacenar la lista de exámenes del CSV
+
+        // Mapeo de opciones de tubos (con la descripción completa)
         const tubeOptions = {
             'No Clasificado': 'No Clasificado',
-            'Tubo Amarillo': 'yellow',
-            'Tubo Lila': 'lila',
-            'Tubo Celeste': 'celeste',
-            'Tubo Rojo': 'red',
-            'Tubo Verde': 'green',
-            'Tubo Gris': 'gray',
+            'Tubo Amarillo (Gel/Suero)': 'yellow',
+            'Tubo Lila (EDTA)': 'lila',
+            'Tubo Celeste (Citarto)': 'celeste',
+            'Tubo Rojo (Sin Aditivo)': 'red',
+            'Tubo Verde (Heparina)': 'green',
+            'Tubo Gris (Fluoruro)': 'gray',
+            'Tubo Azul Rey (Elementos Traza)': 'azul-rey',
+            'Tubo Perlado (PPT/STP)': 'perlado',
             'Orina': 'urine',
-            'Heces': 'fecal',
+            'Heces (Materia Fecal)': 'fecal',
             'Saliva': 'saliva',
             'Otro/Especial': 'other'
         };
@@ -226,6 +276,7 @@
         // 2. LÓGICA DE CONEXIÓN CON EL SERVIDOR RENDER/MONGODB
         
         async function getClassificationDataOnline() {
+            // ... (Función inalterada) ...
             try {
                 const response = await fetch(API_BASE_URL);
                 if (!response.ok) {
@@ -242,7 +293,12 @@
         }
         
         async function saveClassificationOnline(examKey, tubeValue, instructionsValue) {
+            // ... (Función inalterada) ...
             try {
+                // Deshabilitar botón para evitar doble click
+                const button = document.getElementById(`save-btn-${examKey}`);
+                if (button) button.disabled = true;
+
                 const response = await fetch(API_BASE_URL, {
                     method: 'POST',
                     headers: {
@@ -259,29 +315,153 @@
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
+                // Actualizar caché
                 classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
-                document.getElementById('saveStatus').textContent = `✅ Examen "${examKey}" guardado en MongoDB/Render a las ${new Date().toLocaleTimeString()}.`;
+                
+                // Volver a renderizar los grupos para que el examen se mueva a su nuevo contenedor
+                renderGroupedExams(examsArrayGlobal, classificationDataCache);
+
+                document.getElementById('saveStatus').textContent = `✅ Examen "${examKey}" guardado y movido a su contenedor a las ${new Date().toLocaleTimeString()}.`;
+                
             } catch (error) {
                 console.error("Error al guardar clasificación:", error);
                 document.getElementById('saveStatus').textContent = '❌ Error al guardar datos. Revisa la consola y la URL del servidor.';
+            } finally {
+                 if (button) button.disabled = false;
             }
         }
         
-        function saveClassificationTrigger(examKey, tubeValue, instructionsValue) {
-            // Actualiza el indicador visualmente antes de guardar
-            const itemDiv = document.querySelector(`.csv-exam-item[data-exam="${examKey}"]`);
-            if (itemDiv) {
-                const indicator = itemDiv.querySelector('.tube-indicator');
-                const tubeClass = tubeOptions[tubeValue];
-                indicator.className = 'tube-indicator ' + (tubeClass || 'No.Clasificado');
-            }
+        // La función saveClassificationTrigger ahora solo llama a saveClassificationOnline
+        function saveClassificationTrigger(examKey) {
+            const select = document.getElementById(`select-${examKey}`);
+            const input = document.getElementById(`input-${examKey}`);
             
-            // Llama a la función de guardado en línea
-            saveClassificationOnline(examKey, tubeValue, instructionsValue);
+            if (select && input) {
+                 saveClassificationOnline(examKey, select.value, input.value);
+            }
         }
 
-        // 3. RENDERIZADO DE EXÁMENES DEL CSV
+        // 3. RENDERIZADO DE EXÁMENES DEL CSV AGRUPADOS POR TUBO
         
+        function renderGroupedExams(examsArray, classificationData) {
+            const container = document.getElementById('csvExamsList');
+            container.innerHTML = '';
+            
+            if (examsArray.length === 0) {
+                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ La última ruta CSV no contenía exámenes válidos.</p>`;
+                 return;
+            }
+            
+            // 1. Agrupar exámenes por el tipo de tubo
+            const groupedExams = {};
+            Object.keys(tubeOptions).forEach(tubeName => groupedExams[tubeName] = []);
+            
+            examsArray.forEach(exam => {
+                const classification = classificationData[exam] || { tube: 'No Clasificado', instructions: '' };
+                const tubeKey = classification.tube || 'No Clasificado';
+                
+                // Asignar al grupo correcto (usando el nombre completo del tubo como clave)
+                const tubeNameKey = Object.keys(tubeOptions).find(key => tubeOptions[key] === tubeOptions[tubeKey]);
+
+                if (tubeNameKey && groupedExams[tubeNameKey]) {
+                    groupedExams[tubeNameKey].push({ 
+                        examKey: exam, 
+                        tube: classification.tube, 
+                        instructions: classification.instructions 
+                    });
+                }
+            });
+            
+            // 2. Renderizar los grupos (acordeones)
+            const sortedTubeKeys = Object.keys(groupedExams).sort((a, b) => {
+                if (a === 'No Clasificado') return -1; // No Clasificado primero
+                if (b === 'No Clasificado') return 1;
+                return a.localeCompare(b);
+            });
+            
+            sortedTubeKeys.forEach(tubeName => {
+                const examsInGroup = groupedExams[tubeName];
+                
+                if (examsInGroup.length > 0) {
+                    const tubeClass = tubeOptions[tubeName]; // Clase CSS del tubo
+                    const safeTubeId = tubeClass.replace(/[^a-zA-Z0-9]/g, '-');
+                    
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'tube-group csv-group';
+                    groupDiv.id = `group-${safeTubeId}`;
+                    
+                    const header = document.createElement('div');
+                    header.className = 'tube-header';
+                    header.onclick = () => toggleAccordion(header);
+                    header.innerHTML = `${tubeName} <span>(${examsInGroup.length} Exámenes)</span>`;
+                    groupDiv.appendChild(header);
+
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'tube-content';
+                    
+                    examsInGroup.forEach(examData => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'csv-exam-item';
+                        itemDiv.dataset.exam = examData.examKey;
+
+                        // A) Indicador de color
+                        const indicator = document.createElement('span');
+                        indicator.className = 'tube-indicator ' + tubeOptions[examData.tube];
+                        itemDiv.appendChild(indicator);
+                        
+                        // B) Nombre del examen
+                        const nameSpan = document.createElement('span');
+                        nameSpan.className = 'exam-name-display';
+                        nameSpan.textContent = examData.examKey;
+                        itemDiv.appendChild(nameSpan);
+
+                        // C) Formulario de clasificación
+                        const formDiv = document.createElement('div');
+                        formDiv.className = 'classification-form';
+
+                        // Select de Tubo
+                        const select = document.createElement('select');
+                        select.id = `select-${examData.examKey}`;
+                        
+                        Object.keys(tubeOptions).forEach(optionName => {
+                            const option = document.createElement('option');
+                            option.value = optionName;
+                            option.textContent = optionName;
+                            if (optionName === examData.tube) {
+                                option.selected = true;
+                            }
+                            select.appendChild(option);
+                        });
+                        formDiv.appendChild(select);
+
+                        // Input de Instrucciones
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = `input-${examData.examKey}`;
+                        input.placeholder = 'Instrucción (e.g., Ayuno, Hielo)';
+                        input.value = examData.instructions;
+                        formDiv.appendChild(input);
+                        
+                        // Botón de Guardar
+                        const saveBtn = document.createElement('button');
+                        saveBtn.id = `save-btn-${examData.examKey}`;
+                        saveBtn.className = 'save-button';
+                        saveBtn.textContent = 'Guardar';
+                        saveBtn.onclick = () => saveClassificationTrigger(examData.examKey);
+                        formDiv.appendChild(saveBtn);
+
+
+                        itemDiv.appendChild(formDiv);
+                        contentDiv.appendChild(itemDiv);
+                    });
+
+                    groupDiv.appendChild(contentDiv);
+                    container.appendChild(groupDiv);
+                }
+            });
+             document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes cargados. Clasificación leída de MongoDB y agrupada.`;
+        }
+
         async function loadAndRenderCSVExams() {
             const container = document.getElementById('csvExamsList');
             const storedExams = localStorage.getItem('csv_unique_exams');
@@ -295,123 +475,82 @@
                 return;
             }
 
-            const examsArray = JSON.parse(storedExams);
+            examsArrayGlobal = JSON.parse(storedExams);
             
-            if (examsArray.length === 0) {
-                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ La última ruta CSV no contenía exámenes válidos.</p>`;
-                 return;
-            }
-            
-            examsArray.forEach(exam => {
-                const examKey = exam;
-                const classification = classificationData[examKey] || { tube: 'No Clasificado', instructions: '' }; 
-                
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'csv-exam-item';
-                itemDiv.dataset.exam = examKey;
-
-                // Indicador de color actual
-                const tubeClassKey = classification.tube || 'No Clasificado';
-                const indicator = document.createElement('span');
-                indicator.className = 'tube-indicator ' + tubeOptions[tubeClassKey];
-                itemDiv.appendChild(indicator);
-                
-                // Nombre del examen
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'exam-name';
-                nameSpan.textContent = exam;
-                itemDiv.appendChild(nameSpan);
-
-                // Formulario de clasificación
-                const formDiv = document.createElement('div');
-                formDiv.className = 'classification-form';
-
-                // Select de Tubo
-                const select = document.createElement('select');
-                select.id = `select-${examKey}`;
-                select.onchange = (e) => saveClassificationTrigger(examKey, e.target.value, document.getElementById(`input-${examKey}`).value);
-
-                Object.keys(tubeOptions).forEach(tubeName => {
-                    const option = document.createElement('option');
-                    option.value = tubeName;
-                    option.textContent = tubeName;
-                    if (tubeName === classification.tube) {
-                        option.selected = true;
-                    }
-                    select.appendChild(option);
-                });
-                formDiv.appendChild(select);
-
-                // Input de Instrucciones
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = `input-${examKey}`;
-                input.placeholder = 'Instrucción (e.g., Ayuno, Hielo)';
-                input.value = classification.instructions;
-                input.onblur = (e) => saveClassificationTrigger(examKey, select.value, e.target.value); 
-                formDiv.appendChild(input);
-
-                itemDiv.appendChild(formDiv);
-                container.appendChild(itemDiv);
-            });
-            document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes cargados. Clasificación leída de MongoDB.`;
+            renderGroupedExams(examsArrayGlobal, classificationData);
         }
 
-        // 4. FUNCIONES EXISTENTES
+        // 4. FUNCIONES EXISTENTES Y MEJORADAS
         function toggleAccordion(header) {
-            const group = header.parentNode;
+            const group = header.closest('.tube-group');
             group.classList.toggle('active');
         }
 
         function filterExams() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const examensList = document.getElementById('examensList');
-            const csvExamsList = document.getElementById('csvExamsList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const csvContainer = document.getElementById('csvExamsList');
+            const guideContainer = document.getElementById('examensList');
             
-             const tubeGroups = examensList.querySelectorAll('.tube-group');
-
-            if (searchTerm.length > 0) {
-                tubeGroups.forEach(group => {
-                    let anyExamVisible = false;
-                    const examsInGroup = group.querySelectorAll('.exam-item');
-
-                    examsInGroup.forEach(item => {
-                        const examText = item.textContent.toLowerCase();
-                        if (examText.includes(searchTerm) || group.querySelector('.tube-header').textContent.toLowerCase().includes(searchTerm)) {
-                            item.style.display = 'flex'; 
-                            anyExamVisible = true;
-                        } else {
-                            item.style.display = 'none'; 
-                        }
-                    });
-
-                    if (anyExamVisible) {
-                        group.style.display = 'block';
-                        group.classList.add('active'); 
-                    } else {
-                        group.style.display = 'none';
-                        group.classList.remove('active');
-                    }
-                });
-            } else {
-                tubeGroups.forEach(group => {
+            if (searchTerm.length === 0) {
+                // Si la búsqueda está vacía, mostrar todo y colapsar los acordeones.
+                [...csvContainer.querySelectorAll('.csv-group'), ...guideContainer.querySelectorAll('.tube-group')].forEach(group => {
                     group.style.display = 'block';
                     group.classList.remove('active');
-                    group.querySelectorAll('.exam-item').forEach(item => {
-                        item.style.display = 'flex';
-                    });
+                    [...group.querySelectorAll('.csv-exam-item'), ...group.querySelectorAll('.guide-exam-item')].forEach(item => item.style.display = 'flex');
                 });
+                return;
             }
+            
+            // Lógica de filtrado
+            
+            // 1. Filtrar Acordeones de la GUÍA ESTÁTICA
+            guideContainer.querySelectorAll('.tube-group').forEach(group => {
+                let foundInGroup = false;
+                const items = [...group.querySelectorAll('.guide-exam-item')];
 
-            const csvItems = csvExamsList.querySelectorAll('.csv-exam-item');
-            csvItems.forEach(item => {
-                const examText = item.querySelector('.exam-name').textContent.toLowerCase();
-                if (searchTerm.length > 0 && examText.includes(searchTerm)) {
-                    item.style.display = 'flex';
-                } else if (searchTerm.length > 0 && !examText.includes(searchTerm)) {
-                    item.style.display = 'none';
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        item.style.display = 'block';
+                        foundInGroup = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Mostrar/ocultar el grupo y forzar expansión si hay resultados
+                if (foundInGroup || group.querySelector('.tube-header').textContent.toLowerCase().includes(searchTerm)) {
+                    group.style.display = 'block';
+                    group.classList.add('active'); // Forzar apertura
                 } else {
-                    item.style.display = 'flex';
+                    group.style.display = 'none';
+                }
+            });
+
+            // 2. Filtrar Acordeones del CSV (EXÁMENES DE RUTA)
+             csvContainer.querySelectorAll('.csv-group').forEach(group => {
+                let foundInGroup = false;
+                const items = [...group.querySelectorAll('.csv-exam-item')];
+
+                items.forEach(item => {
+                    // Busca en el nombre, el código (si existe) y las instrucciones
+                    const name = item.querySelector('.exam-name-display').textContent.toLowerCase();
+                    const instructions = item.querySelector('input[type="text"]').value.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || instructions.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                        foundInGroup = true;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Mostrar/ocultar el grupo y forzar expansión si hay resultados
+                if (foundInGroup || group.querySelector('.tube-header').textContent.toLowerCase().includes(searchTerm)) {
+                    group.style.display = 'block';
+                    group.classList.add('active'); // Forzar apertura
+                } else {
+                    group.style.display = 'none';
                 }
             });
         }
@@ -419,18 +558,15 @@
 
         // 5. INICIALIZACIÓN
         document.addEventListener('DOMContentLoaded', () => {
-            if(document.getElementById('examensList')) {
-                document.getElementById('examensList').querySelectorAll('.tube-group').forEach(group => {
-                     group.classList.remove('active');
-                });
-            }
-
-            if(document.getElementById('csvExamsList')) {
-                loadAndRenderCSVExams(); 
-            }
+             // Cargar los exámenes del CSV y renderizarlos agrupados
+            loadAndRenderCSVExams(); 
+            
+            // Colapsar guías estáticas al inicio
+            document.getElementById('examensList').querySelectorAll('.tube-group').forEach(group => {
+                 group.classList.remove('active');
+            });
         });
 
     </script>
 </body>
-
 </html>
