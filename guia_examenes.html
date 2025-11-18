@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motorizado Lab - Guía Rápida 🧪</title>
     <style>
+        /* ... (MANTÉN TODOS LOS ESTILOS CSS QUE TE DI ANTERIORMENTE) ... */
+        /* Asegúrate de que los estilos CSS para .tube-indicator.yellow, .tube-indicator.lila, etc. estén aquí */
+        
         /* Paleta: #333 (Negro Motorizado), #FFC107 (Amarillo de Seguridad), #F4F4F9 (Fondo claro) */
         body {
             font-family: 'Arial', sans-serif;
@@ -32,25 +35,6 @@
             border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
-        /* Botón de navegación RESTAURADO */
-        .portal-actions {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .portal-actions button {
-            background-color: #555;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background-color 0.2s;
-        }
-        .portal-actions button:hover {
-            background-color: #333;
-        }
-        
         .tube-group {
             margin-bottom: 10px;
             border: 1px solid #ddd;
@@ -180,10 +164,6 @@
 </head>
 <body>
     <div id="container">
-        <div class="portal-actions">
-            <button onclick="window.location.href='index.html'">Volver al Portal de Rutas</button>
-        </div>
-        
         <h1>Guía Rápida de Clasificación de Muestras</h1>
 
         <div id="csvExamsContainer" class="csv-exam-group">
@@ -225,7 +205,7 @@
     </div>
 
     <script>
-        // 1. CONFIGURACIÓN DEL ENDPOINT (¡REEMPLAZA ESTA URL CON TU URL REAL!)
+        // 1. CONFIGURACIÓN DEL ENDPOINT (¡REEMPLAZA ESTA URL!)
         const API_BASE_URL = 'TU_URL_PUBLICA_DE_RENDER/api/classification'; // Ejemplo: 'https://motorizado-lab-backend.onrender.com/api/classification'
         
         let classificationDataCache = {};
@@ -295,21 +275,50 @@
             if (itemDiv) {
                 const indicator = itemDiv.querySelector('.tube-indicator');
                 const tubeClass = tubeOptions[tubeValue];
-                indicator.className = 'tube-indicator ' + (tubeClass || 'No.Clasificado');
+                // Primero remueve todas las clases de color
+                Object.values(tubeOptions).forEach(cls => indicator.classList.remove(cls.replace(' ', '.')));
+                // Agrega la clase de color correcta
+                indicator.classList.add(tubeClass.replace(' ', '.'));
             }
             
             // Llama a la función de guardado en línea
             saveClassificationOnline(examKey, tubeValue, instructionsValue);
         }
-        
-        // --- FUNCIÓN AUXILIAR DE RENDERING ---
-        function renderExams(examsArray, classificationData) {
-            const container = document.getElementById('csvExamsList');
-            container.innerHTML = ''; // Limpia la lista antes de renderizar
 
+        // 3. RENDERIZADO DE EXÁMENES DEL CSV (LÓGICA MEJORADA)
+        
+        async function loadAndRenderCSVExams() {
+            const container = document.getElementById('csvExamsList');
+            const storedExams = localStorage.getItem('csv_unique_exams');
+            
+            // Siempre cargamos los datos de clasificación guardados en MongoDB
+            const classificationData = await getClassificationDataOnline();
+            
+            container.innerHTML = '';
+            
+            let examsArray = [];
+            
+            if (storedExams) {
+                // Opción 1: Hay exámenes cargados de una ruta CSV (Muestra los de la ruta)
+                examsArray = JSON.parse(storedExams);
+            } else if (Object.keys(classificationData).length > 0) {
+                // Opción 2: No hay ruta CSV cargada, pero hay clasificaciones guardadas (Muestra los clasificados previamente)
+                examsArray = Object.keys(classificationData).sort();
+            } else {
+                // Opción 3: No hay CSV y no hay nada en MongoDB (Mensaje de vacío)
+                container.innerHTML = `<p style="color: #555; font-weight: bold; text-align: center;">ℹ️ No hay exámenes cargados de la ruta CSV ni clasificaciones previas en la base de datos. Clasifica un examen en esta vista o carga un CSV en la página principal.</p>`;
+                document.getElementById('saveStatus').textContent = `Estado: Sin lista de exámenes cargada.`;
+                return;
+            }
+            
+            if (examsArray.length === 0) {
+                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ La lista de exámenes está vacía.</p>`;
+                 document.getElementById('saveStatus').textContent = `Estado: Lista de exámenes vacía.`;
+                 return;
+            }
+            
             examsArray.forEach(exam => {
                 const examKey = exam;
-                // Usa la clasificación de MongoDB o 'No Clasificado' si no existe
                 const classification = classificationData[examKey] || { tube: 'No Clasificado', instructions: '' }; 
                 
                 const itemDiv = document.createElement('div');
@@ -319,11 +328,10 @@
                 // Indicador de color actual
                 const tubeClassKey = classification.tube || 'No Clasificado';
                 const indicator = document.createElement('span');
-                // Usa la clase del color mapeado o 'No.Clasificado'
-                indicator.className = 'tube-indicator ' + (tubeOptions[tubeClassKey] || 'No.Clasificado');
+                indicator.className = 'tube-indicator ' + tubeOptions[tubeClassKey].replace(' ', '.'); // Usa la clave correcta
                 itemDiv.appendChild(indicator);
                 
-                // Nombre del examen (incluye el código)
+                // Nombre del examen (CON CÓDIGO)
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'exam-name';
                 nameSpan.textContent = exam;
@@ -355,55 +363,19 @@
                 input.id = `input-${examKey}`;
                 input.placeholder = 'Instrucción (e.g., Ayuno, Hielo)';
                 input.value = classification.instructions;
-                // Guarda al salir del campo (onblur)
                 input.onblur = (e) => saveClassificationTrigger(examKey, select.value, e.target.value); 
                 formDiv.appendChild(input);
 
                 itemDiv.appendChild(formDiv);
                 container.appendChild(itemDiv);
             });
-        }
-        
-        // 3. RENDERIZADO DE EXÁMENES DEL CSV (CON LÓGICA DE VISIBILIDAD PERMANENTE)
-        
-        async function loadAndRenderCSVExams() {
-            const container = document.getElementById('csvExamsList');
-            // Cargar la lista de exámenes de la ruta desde localStorage
-            const storedExamsJSON = localStorage.getItem('csv_unique_exams');
             
-            // Cargar las clasificaciones guardadas en la nube (MongoDB)
-            const classificationData = await getClassificationDataOnline();
-            
-            container.innerHTML = '';
-            
-            let examsArray = [];
-            let messageStatus = '';
-            let isCsvLoaded = storedExamsJSON && JSON.parse(storedExamsJSON).length > 0;
-
-            if (isCsvLoaded) {
-                // Opción 1: Hay un CSV cargado. Usamos esa lista para clasificar.
-                examsArray = JSON.parse(storedExamsJSON);
-                messageStatus = `Lista de ${examsArray.length} exámenes de la ÚLTIMA RUTA cargados. Clasificación leída de MongoDB.`;
+            // Mensaje de estado final
+            if (storedExams) {
+                document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes cargados de la ÚLTIMA RUTA CSV. Clasificación leída de MongoDB.`;
             } else {
-                // Opción 2: NO hay CSV cargado. Usamos todos los exámenes CLASIFICADOS de MongoDB (HISTÓRICOS).
-                examsArray = Object.keys(classificationData).sort();
-                
-                if (examsArray.length === 0) {
-                    // No hay ni CSV ni clasificados en la base de datos
-                    container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ No se encontraron exámenes. Carga un CSV en la página principal para empezar o clasifica uno.</p>`;
-                    return;
-                }
-                messageStatus = `Lista de ${examsArray.length} exámenes CLASIFICADOS HISTÓRICAMENTE cargados de MongoDB.`;
+                 document.getElementById('saveStatus').textContent = `Lista de ${examsArray.length} exámenes clasificados previamente.`;
             }
-            
-            if (examsArray.length === 0) {
-                 container.innerHTML = `<p style="color: #dc3545; font-weight: bold; text-align: center;">⚠️ La lista de exámenes está vacía.</p>`;
-                 return;
-            }
-            
-            // Renderiza la lista determinada (ya sea la de la ruta o la histórica)
-            renderExams(examsArray, classificationData);
-            document.getElementById('saveStatus').textContent = messageStatus;
         }
 
         // 4. FUNCIONES EXISTENTES
@@ -417,7 +389,7 @@
             const examensList = document.getElementById('examensList');
             const csvExamsList = document.getElementById('csvExamsList');
             
-             const tubeGroups = examensList.querySelectorAll('.tube-group');
+            const tubeGroups = examensList.querySelectorAll('.tube-group');
 
             if (searchTerm.length > 0) {
                 tubeGroups.forEach(group => {
