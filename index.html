@@ -240,11 +240,13 @@
                         const requestId = row[COL_REQUEST_ID] ? row[COL_REQUEST_ID].trim() : 'SIN SOLICITUD';
                         
                         const examsStr = row[COL_EXAMS] || '';
+                        
+                        // 🟢 CORRECCIÓN CLAVE: MANTENER CÓDIGOS Y TEXTO COMPLETO
                         const exams = examsStr.split(/[\/\/|;]/) 
-                            .map(exam => exam.replace(/\[.*\]|\s*\d+\s*/g, '').trim())
+                            .map(exam => exam.trim().replace(/\s{2,}/g, ' ')) // Limpia espacios extra, pero mantiene códigos
                             .filter(exam => exam.length > 2);
 
-                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES
+                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES (CON CÓDIGO)
                         exams.forEach(exam => uniqueExams.add(exam));
                         
                         if (!groupedData[company]) {
