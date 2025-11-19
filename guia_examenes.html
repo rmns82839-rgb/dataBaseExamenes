@@ -183,7 +183,7 @@
             cursor: not-allowed;
         }
 
-        /* Colores de Tubos (Sin cambios) */
+        /* Colores de Tubos (sin cambios) */
         .tube-indicator.yellow { background-color: #FFC107; }
         .tube-indicator.lila { background-color: #8e2de2; } 
         .tube-indicator.celeste { background-color: #00b0ff; } 
@@ -198,7 +198,7 @@
         .tube-indicator.other { background-color: #333; }
         .tube-indicator.No.Clasificado { background-color: #fff; border: 1px dashed #dc3545; }
 
-        /* Estilos de la guía estática (Sin cambios) */
+        /* Estilos de la guía estática (sin cambios) */
         .guide-exam-item {
              padding: 8px;
              border-bottom: 1px dotted #ccc;
@@ -215,7 +215,7 @@
              margin-left: 10px;
         }
         
-        /* Botón de Regreso (Sin cambios) */
+        /* Botón de Regreso (sin cambios) */
         .back-button {
             background-color: #333;
             color: #FFC107;
@@ -426,7 +426,6 @@
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                // Actualizar caché y re-renderizar para que el examen se mueva de contenedor
                 classificationDataCache[examKey] = { tube: tubeValue, instructions: instructionsValue.trim() };
                 
                 // Re-renderizamos para que el examen se mueva de contenedor si la clasificación cambió
