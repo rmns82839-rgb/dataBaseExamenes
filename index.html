@@ -124,6 +124,7 @@
             padding: 0;
             margin-top: 20px;
         }
+        /* ESTILO BASE DE COMPAÑÍA */
         .company-item {
             border: 2px solid #333;
             border-radius: 8px;
@@ -139,6 +140,46 @@
             border-bottom: 2px solid #FFC107;
             padding-bottom: 5px;
         }
+
+        /* 🎨 ESTILOS ESPECÍFICOS POR COMPAÑÍA 🎨 */
+        /* FSFB: Azul */
+        .company-fsfb {
+            border-color: #1e90ff; /* Azul */
+        }
+        .company-fsfb .company-name {
+            color: #1e90ff; 
+            border-bottom-color: #1e90ff;
+        }
+
+        /* EMERMEDICA: Rojo */
+        .company-emermedica {
+            border-color: #dc3545; /* Rojo */
+        }
+        .company-emermedica .company-name {
+            color: #dc3545;
+            border-bottom-color: #dc3545;
+        }
+
+        /* AXA: Amarillo */
+        .company-axa {
+            border-color: #ffc107; /* Amarillo */
+        }
+        .company-axa .company-name {
+            color: #ffc107;
+            border-bottom-color: #ffc107;
+        }
+
+        /* PARTICULAR: Verde Claro */
+        .company-particular {
+            border-color: #90ee90; /* Verde Claro */
+        }
+        .company-particular .company-name {
+            color: #1e90ff; /* Mantenemos azul para el texto si el borde es claro */
+            border-bottom-color: #90ee90;
+        }
+        /* ------------------------------------ */
+
+
         .patient-list {
             list-style: none;
             padding-left: 0;
@@ -234,7 +275,7 @@
             const file = fileInput.files[0];
             const statusElement = document.getElementById('status');
             
-            // 🆕 NUEVO: Obtener el nombre del usuario y validar
+            // Obtener el nombre del usuario y validar
             const uploaderName = document.getElementById('uploaderName').value.trim(); 
             if (!uploaderName) {
                 alert('❌ Por favor, ingresa tu nombre o iniciales antes de procesar el archivo.');
@@ -252,13 +293,21 @@
             Papa.parse(file, {
                 header: true,
                 skipEmptyLines: true,
-                delimiter: ',',
+                // PapaParse auto-detectará el delimitador (coma o punto y coma)
+
+                // 🛠️ PARÁMETROS CRÍTICOS PARA ARCHIVOS COMPLEJOS COMO EL TUYO
+                quoteChar: '"',      
+                escapeChar: '"',     
+                newline: 'auto',     
+                // -----------------------------------------------------------
+                
                 complete: function(results) {
                     const data = results.data;
                     const totalRowsProcessed = data.length;
                     
                     if (data.length === 0) {
-                        statusElement.textContent = 'El archivo está vacío o no se pudieron leer los datos.';
+                        const detectedDelimiter = results.meta.delimiter ? `(${results.meta.delimiter})` : '';
+                        statusElement.textContent = `El archivo está vacío o no se pudieron leer los datos. Delimitador detectado: ${detectedDelimiter}`;
                         return;
                     }
                     
@@ -277,12 +326,21 @@
                         const requestId = row[COL_REQUEST_ID] ? row[COL_REQUEST_ID].trim() : 'SIN SOLICITUD';
                         
                         const examsStr = row[COL_EXAMS] || '';
-                        const exams = examsStr.split(/[\/\/|;]/) 
+                        let exams = examsStr.split(/[\/\/|;]/) 
                             .map(exam => exam.replace(/\[.*\]|\s*\d+\s*/g, '').trim())
                             .filter(exam => exam.length > 2);
 
-                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES
-                        exams.forEach(exam => uniqueExams.add(exam));
+                        // 🌟 LÓGICA PARA EXÁMENES VACÍOS
+                        if (exams.length === 0 && examsStr.trim() === '') {
+                            exams = ['EXAMEN NO ESPECIFICADO O VACÍO'];
+                        }
+
+                        // ⚠️ GUARDA LA LISTA ÚNICA DE EXÁMENES 
+                        exams.forEach(exam => {
+                            if (exam !== 'EXAMEN NO ESPECIFICADO O VACÍO') {
+                                uniqueExams.add(exam);
+                            }
+                        });
                         
                         if (!groupedData[company]) {
                             groupedData[company] = {};
@@ -310,7 +368,7 @@
                         }
                     });
 
-                    // *** PUNTO CLAVE: ENVIAR EXÁMENES ÚNICOS AL SERVIDOR CON AUDITORÍA (REEMPLAZA localStorage) ***
+                    // *** Envío de datos al Backend (simulado) ***
                     fetch(`${API_BACKEND_URL}/api/exams/save-unique`, { 
                         method: 'POST',
                         headers: {
@@ -318,24 +376,23 @@
                         },
                         body: JSON.stringify({ 
                             exams: Array.from(uniqueExams).sort(),
-                            added_by: uploaderName // 👈 Enviamos el ID del usuario
+                            added_by: uploaderName 
                         })
                     })
                     .then(response => {
                         if (!response.ok) {
+                            console.error('Error al guardar lista única en MongoDB:', response.status);
                             throw new Error('Error al guardar lista única en MongoDB');
                         }
-                        console.log("Lista única de exámenes enviada a MongoDB. Los nuevos exámenes se registrarán con el ID:", uploaderName);
                         statusElement.textContent += ' (Lista maestra de exámenes actualizada).';
                     })
                     .catch(error => {
                         console.error('Error de red al guardar exámenes:', error);
-                        alert('Hubo un error al guardar los exámenes únicos en el servidor. Revisa la consola.');
+                        alert('Hubo un error al guardar los exámenes únicos en el servidor (404/Red). La ruta se ha visualizado correctamente.');
                     });
 
 
-                    // *** SE MANTIENE EL ALMACENAMIENTO LOCAL PARA LA LISTA DE PACIENTES ***
-                    // Esto es solo para que el index.html recuerde la última ruta visualmente
+                    // *** VISUALIZACIÓN LOCAL ***
                     localStorage.setItem('csv_processed_data', JSON.stringify(groupedData));
                     
                     renderOutput(groupedData, totalRowsProcessed);
@@ -345,6 +402,16 @@
                     console.error('PapaParse error:', error);
                 }
             });
+        }
+
+        // Función para obtener la clase CSS basada en el nombre de la compañía
+        function getCompanyClass(companyName) {
+            const name = companyName.toUpperCase().trim();
+            if (name.includes('FSFB')) return 'company-fsfb';
+            if (name.includes('EMERMEDICA')) return 'company-emermedica';
+            if (name.includes('AXA')) return 'company-axa';
+            if (name.includes('PARTICULAR') || name.includes('SIN COMPAÑÍA')) return 'company-particular';
+            return 'company-item'; // Clase base por defecto
         }
 
         // Función para renderizar el output
@@ -368,7 +435,8 @@
                 totalPatients += patientKeys.length;
 
                 const companyListItem = document.createElement('li');
-                companyListItem.className = 'company-item';
+                // 🚀 APLICANDO LA CLASE DE ESTILO DE COMPAÑÍA
+                companyListItem.className = 'company-item ' + getCompanyClass(companyName);
 
                 const companyNameHeader = document.createElement('h3');
                 companyNameHeader.className = 'company-name';
@@ -407,6 +475,11 @@
                             examList.className = 'exam-list';
                             req.exams.forEach(exam => {
                                 const examItem = document.createElement('li');
+                                // Estilo visual del marcador de examen vacío
+                                if (exam === 'EXAMEN NO ESPECIFICADO O VACÍO') {
+                                    examItem.style.fontStyle = 'italic';
+                                    examItem.style.color = 'red';
+                                }
                                 examItem.textContent = exam;
                                 examList.appendChild(examItem);
                             });
@@ -447,4 +520,3 @@
     </script>
 </body>
 </html>
-
