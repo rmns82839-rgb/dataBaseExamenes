@@ -135,7 +135,52 @@ app.get('/api/exams/all-unique', async (req, res) => {
 });
 
 
-// 3. ENDPOINT: Guardar lista de exámenes únicos (Se asegura de guardar el código)
+// 3. ⭐️ NUEVO ENDPOINT: Guardar Exámenes Únicos desde Frontend (Fix para 404)
+// Esta ruta coincide con la llamada de fetch en index.html
+app.post('/api/exams/save-unique', async (req, res) => {
+    try {
+        if (!uniqueExamsCollection) {
+            return res.status(503).json({ message: "Servicio no disponible: Base de datos no conectada." });
+        }
+        
+        const { exams, added_by } = req.body; 
+
+        if (!Array.isArray(exams) || exams.length === 0) {
+            return res.status(400).json({ message: "Se espera un array de nombres de exámenes." });
+        }
+
+        // Crear las operaciones bulk para insertar/actualizar
+        const bulkOps = exams.map(examName => ({
+            updateOne: {
+                filter: { 
+                    exam_name: examName 
+                }, 
+                update: {
+                    $setOnInsert: {
+                        exam_name: examName,
+                        exam_code: 'N/A', // El frontend no proporciona el código, se marca como 'N/A'
+                        added_by: added_by || 'Sistema',
+                        added_at: new Date()
+                    }
+                },
+                upsert: true
+            }
+        }));
+        
+        const result = await uniqueExamsCollection.bulkWrite(bulkOps);
+
+        res.status(200).json({ 
+            message: `Procesados ${exams.length} exámenes. ${result.upsertedCount} nuevos insertados.`, 
+            result
+        });
+    } catch (e) {
+        console.error("Error al guardar lista de exámenes únicos:", e);
+        res.status(500).json({ message: "Error interno del servidor." });
+    }
+});
+
+
+// 3.5. ENDPOINT ORIGINAL (Mantengo la numeración original para no desorganizar el archivo)
 app.post('/api/exams/unique', async (req, res) => {
     try {
         if (!uniqueExamsCollection) {
